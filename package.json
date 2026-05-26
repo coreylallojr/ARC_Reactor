@@ -30,11 +30,14 @@
       "target": "AppImage"
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true,
       "installerIcon": "assets/icon.ico",
       "uninstallerIcon": "assets/icon.ico",
-      "shortcutName": "ARC Reactor"
+      "shortcutName": "ARC Reactor",
+      "artifactName": "arc-reactor-setup.exe"
     },
     "files": [
       "main.js",

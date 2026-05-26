@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J.A.R.V.I.S — ARC Reactor</title>
+<meta name="description" content="Iron Man's AI assistant for your terminal. JARVIS narrates every Claude Code action in his iconic British voice.">
+<link rel="icon" type="image/svg+xml" href="_static/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cyan:      #00d4ff;
+  --cyan-dim:  #0094cc;
+  --cyan-faint: rgba(0,212,255,0.12);
+  --gold:      #f0a500;
+  --gold-dim:  #c88800;
+  --bg:        #000810;
+  --bg-mid:    #000d1a;
+  --bg-card:   rgba(0,18,36,0.85);
+  --text:      #b8dff0;
+  --text-dim:  #4a7890;
+  --font-hud:  'Orbitron', monospace;
+  --font-body: 'Rajdhani', 'Segoe UI', sans-serif;
+  --glow-cyan: 0 0 12px rgba(0,212,255,0.55), 0 0 30px rgba(0,212,255,0.2);
+  --glow-gold: 0 0 12px rgba(240,165,0,0.55), 0 0 30px rgba(240,165,0,0.2);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* Scan-line texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 999;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.025) 3px, rgba(0,0,0,0.025) 4px
+  );
+}
+
+/* ── Canvas background ────────────────────────────────────────────────────── */
+#bg-canvas {
+  position: fixed; inset: 0; z-index: 0;
+  opacity: 0.45;
+}
+
+/* ── Typography ───────────────────────────────────────────────────────────── */
+h1, h2, h3 { font-family: var(--font-hud); letter-spacing: 0.08em; }
+
+.hud-label {
+  font-family: var(--font-hud);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan-dim);
+}
+
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+main { position: relative; z-index: 1; }
+
+section { padding: 90px 24px; }
+
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+/* ── Nav ──────────────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(0,8,16,0.88);
+  border-bottom: 1px solid rgba(0,212,255,0.15);
+  backdrop-filter: blur(12px);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-hud);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+.nav-logo svg { width: 22px; height: 22px; }
+
+.nav-links { display: flex; gap: 28px; align-items: center; }
+
+.nav-links a {
+  font-family: var(--font-hud);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--cyan); }
+
+.nav-btn {
+  font-family: var(--font-hud);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--bg) !important;
+  background: var(--gold);
+  border-radius: 2px;
+  padding: 6px 14px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.2s, box-shadow 0.2s !important;
+}
+
+.nav-btn:hover { background: var(--gold-dim) !important; box-shadow: var(--glow-gold) !important; }
+
+/* ── Hero ─────────────────────────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 80px 24px 60px;
+  gap: 0;
+}
+
+/* ARC Reactor */
+#arc-reactor {
+  width: min(340px, 72vw);
+  height: min(340px, 72vw);
+  margin-bottom: 40px;
+  position: relative;
+}
+
+#arc-reactor svg { width: 100%; height: 100%; }
+
+.ring-outer   { animation: spin-cw  22s linear infinite; transform-origin: 100px 100px; }
+.ring-mid     { animation: spin-ccw 14s linear infinite; transform-origin: 100px 100px; }
+.ring-seg     { animation: spin-cw  18s linear infinite; transform-origin: 100px 100px; }
+.ring-inner   { animation: spin-ccw  9s linear infinite; transform-origin: 100px 100px; }
+.core-pulse   { animation: pulse-core 2.4s ease-in-out infinite; transform-origin: 100px 100px; }
+.core-bright  { animation: pulse-bright 2.4s ease-in-out infinite; transform-origin: 100px 100px; }
+
+@keyframes spin-cw   { to { transform: rotate(360deg);  } }
+@keyframes spin-ccw  { to { transform: rotate(-360deg); } }
+
+@keyframes pulse-core {
+  0%, 100% { opacity: 0.85; r: 22; }
+  50%       { opacity: 1;    r: 24; }
+}
+
+@keyframes pulse-bright {
+  0%, 100% { opacity: 0.9; }
+  50%       { opacity: 1;   }
+}
+
+.hero-eyebrow {
+  font-family: var(--font-hud);
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--cyan-dim);
+  margin-bottom: 12px;
+}
+
+h1.hero-title {
+  font-size: clamp(3rem, 10vw, 6.5rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  color: #fff;
+  text-shadow: var(--glow-cyan);
+  margin-bottom: 6px;
+}
+
+.hero-subtitle {
+  font-family: var(--font-hud);
+  font-size: clamp(0.6rem, 1.8vw, 0.8rem);
+  letter-spacing: 0.25em;
+  color: var(--cyan);
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+
+.hero-desc {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--text);
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+
+.hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--gold);
+  color: #000;
+  font-family: var(--font-hud);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 16px 32px;
+  border-radius: 2px;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.btn-primary:hover {
+  background: #ffc933;
+  box-shadow: var(--glow-gold);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(0,212,255,0.35);
+  color: var(--cyan);
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 15px 24px;
+  border-radius: 2px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--cyan);
+  box-shadow: var(--glow-cyan);
+  transform: translateY(-2px);
+}
+
+.hero-meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+.hero-meta span { color: var(--cyan-dim); }
+
+/* ── Section headers ──────────────────────────────────────────────────────── */
+.section-head {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.section-head .hud-label { margin-bottom: 10px; display: block; }
+
+.section-head h2 {
+  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  color: #fff;
+  text-shadow: 0 0 20px rgba(0,212,255,0.3);
+}
+
+/* ── HUD Card ─────────────────────────────────────────────────────────────── */
+.hud-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(0,212,255,0.18);
+  border-radius: 4px;
+  padding: 28px 24px;
+  position: relative;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+  backdrop-filter: blur(8px);
+}
+
+.hud-card:hover {
+  border-color: rgba(0,212,255,0.45);
+  box-shadow: 0 0 20px rgba(0,212,255,0.1);
+  transform: translateY(-3px);
+}
+
+/* Corner brackets */
+.hud-card::before, .hud-card::after {
+  content: '';
+  position: absolute;
+  width: 10px; height: 10px;
+  border-color: var(--cyan);
+  border-style: solid;
+  opacity: 0.5;
+  transition: opacity 0.25s;
+}
+.hud-card:hover::before, .hud-card:hover::after { opacity: 1; }
+.hud-card::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+.hud-card::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+
+/* Additional corners via child span injected by JS */
+.hud-card .corner-tr, .hud-card .corner-bl {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-color: var(--cyan);
+  border-style: solid;
+  opacity: 0.5;
+  transition: opacity 0.25s;
+}
+.hud-card:hover .corner-tr, .hud-card:hover .corner-bl { opacity: 1; }
+.hud-card .corner-tr { top: -1px;    right: -1px;  border-width: 1px 1px 0 0; }
+.hud-card .corner-bl { bottom: -1px; left: -1px;   border-width: 0 0 1px 1px; }
+
+/* ── Features ─────────────────────────────────────────────────────────────── */
+#features { background: linear-gradient(180deg, var(--bg) 0%, var(--bg-mid) 100%); }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.feat-icon {
+  width: 44px; height: 44px;
+  margin-bottom: 16px;
+  color: var(--cyan);
+  filter: drop-shadow(0 0 6px rgba(0,212,255,0.5));
+}
+
+.feat-title {
+  font-family: var(--font-hud);
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  color: #fff;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.feat-desc {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+/* ── How it works ─────────────────────────────────────────────────────────── */
+#how-it-works { background: var(--bg); }
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0;
+  position: relative;
+}
+
+.steps::before {
+  content: '';
+  position: absolute;
+  top: 36px; left: 15%; right: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.3), transparent);
+}
+
+.step {
+  text-align: center;
+  padding: 0 24px 24px;
+  position: relative;
+}
+
+.step-num {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cyan);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-family: var(--font-hud);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cyan);
+  background: rgba(0,212,255,0.06);
+  box-shadow: var(--glow-cyan);
+  position: relative; z-index: 1;
+}
+
+.step-title {
+  font-family: var(--font-hud);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: #fff;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.step-desc { font-size: 0.95rem; color: var(--text-dim); }
+
+/* ── Install ──────────────────────────────────────────────────────────────── */
+#install {
+  background: linear-gradient(180deg, var(--bg-mid) 0%, var(--bg) 100%);
+}
+
+.install-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 720px) { .install-inner { grid-template-columns: 1fr; } }
+
+.install-main .hud-label { margin-bottom: 12px; display: block; }
+
+.install-main h2 {
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  color: #fff;
+  margin-bottom: 16px;
+  text-shadow: 0 0 16px rgba(240,165,0,0.3);
+}
+
+.install-main p {
+  color: var(--text-dim);
+  margin-bottom: 28px;
+  font-size: 0.97rem;
+}
+
+.version-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-hud);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  border: 1px solid rgba(0,212,255,0.2);
+  padding: 5px 12px;
+  border-radius: 2px;
+  margin-top: 12px;
+}
+
+.version-badge .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #2eff7f;
+  box-shadow: 0 0 6px #2eff7f;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+.install-steps { list-style: none; counter-reset: install-step; }
+
+.install-steps li {
+  counter-increment: install-step;
+  position: relative;
+  padding: 14px 14px 14px 52px;
+  border-left: 1px solid rgba(0,212,255,0.15);
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.install-steps li:hover { border-color: rgba(0,212,255,0.4); }
+
+.install-steps li::before {
+  content: counter(install-step);
+  position: absolute; left: 14px; top: 14px;
+  font-family: var(--font-hud);
+  font-size: 0.7rem;
+  color: var(--cyan-dim);
+}
+
+.install-steps li strong { color: #fff; }
+
+.install-steps li code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85em;
+  color: var(--cyan);
+  background: rgba(0,212,255,0.08);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+/* ── Requirements ─────────────────────────────────────────────────────────── */
+.req-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.req-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0,212,255,0.12);
+  border-radius: 3px;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+
+.req-item svg { flex-shrink: 0; color: var(--cyan-dim); }
+
+.req-item strong { color: var(--text); display: block; font-size: 0.82rem; }
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+footer {
+  position: relative; z-index: 1;
+  padding: 36px 24px;
+  border-top: 1px solid rgba(0,212,255,0.1);
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  text-align: center;
+}
+
+.footer-logo {
+  font-family: var(--font-hud);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  color: var(--cyan-dim);
+}
+
+.footer-links { display: flex; gap: 24px; }
+
+.footer-links a {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--cyan); }
+
+.footer-copy {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  opacity: 0.5;
+}
+
+/* ── Reveal animations ────────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+.hud-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.25), transparent);
+  margin: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  nav { padding: 0 16px; }
+  .nav-links a:not(.nav-btn) { display: none; }
+  .steps::before { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────────────────────────── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="13" stroke="#00d4ff" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="8"  stroke="#0094cc" stroke-width="1"/>
+      <circle cx="16" cy="16" r="4"  fill="#00d4ff" opacity="0.9"/>
+      <circle cx="16" cy="16" r="1.5" fill="#e0f8ff"/>
+    </svg>
+    J.A.R.V.I.S
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#install">Install</a>
+    <a href="https://github.com/coreylallojr/ARC_Reactor" target="_blank" rel="noopener" class="nav-btn">GitHub ↗</a>
+  </div>
+</nav>
+
+<!-- ── Canvas background ──────────────────────────────────────────────────── -->
+<canvas id="bg-canvas"></canvas>
+
+<main>
+
+<!-- ── Hero ───────────────────────────────────────────────────────────────── -->
+<section id="hero">
+  <!-- Animated ARC Reactor -->
+  <div id="arc-reactor">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow-f">
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="core-glow">
+          <feGaussianBlur stdDeviation="5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <radialGradient id="core-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#80eeff" stop-opacity="1"/>
+          <stop offset="55%"  stop-color="#00d4ff" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#005588" stop-opacity="0.2"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Outer dashed decorative ring -->
+      <circle cx="100" cy="100" r="95" fill="none" stroke="#00d4ff" stroke-width="0.8"
+        stroke-opacity="0.2" stroke-dasharray="3 5"/>
+
+      <!-- Outer ring with tick marks (rotates CW) -->
+      <g class="ring-outer" filter="url(#glow-f)">
+        <circle cx="100" cy="100" r="85" fill="none" stroke="#00d4ff" stroke-width="1.8"/>
+        <!-- Tick marks every 30° -->
+        <g stroke="#00d4ff" stroke-width="1.5" opacity="0.7">
+          <line x1="100" y1="17" x2="100" y2="30" transform="rotate(0   100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="24" transform="rotate(30  100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="24" transform="rotate(60  100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="30" transform="rotate(90  100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="24" transform="rotate(120 100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="24" transform="rotate(150 100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="30" transform="rotate(180 100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="24" transform="rotate(210 100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="24" transform="rotate(240 100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="30" transform="rotate(270 100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="24" transform="rotate(300 100 100)"/>
+          <line x1="100" y1="17" x2="100" y2="24" transform="rotate(330 100 100)"/>
+        </g>
+      </g>
+
+      <!-- Mid ring (rotates CCW) -->
+      <circle class="ring-mid" cx="100" cy="100" r="64"
+        fill="none" stroke="#0094cc" stroke-width="1.3" stroke-opacity="0.75"
+        filter="url(#glow-f)"/>
+
+      <!-- 6-point hex segments (rotate CW) -->
+      <g class="ring-seg" fill="none" stroke="#00d4ff" stroke-width="1.3"
+         filter="url(#glow-f)" opacity="0.55">
+        <polygon points="100,44 118,76 82,76" transform="rotate(0   100 100)"/>
+        <polygon points="100,44 118,76 82,76" transform="rotate(60  100 100)"/>
+        <polygon points="100,44 118,76 82,76" transform="rotate(120 100 100)"/>
+        <polygon points="100,44 118,76 82,76" transform="rotate(180 100 100)"/>
+        <polygon points="100,44 118,76 82,76" transform="rotate(240 100 100)"/>
+        <polygon points="100,44 118,76 82,76" transform="rotate(300 100 100)"/>
+      </g>
+
+      <!-- Inner ring (rotates CCW, fast) -->
+      <circle class="ring-inner" cx="100" cy="100" r="42"
+        fill="none" stroke="#00d4ff" stroke-width="1.5"
+        filter="url(#glow-f)"/>
+
+      <!-- Spoke lines -->
+      <g stroke="#00d4ff" stroke-width="0.8" opacity="0.4">
+        <line x1="100" y1="58" x2="100" y2="76" transform="rotate(0   100 100)"/>
+        <line x1="100" y1="58" x2="100" y2="76" transform="rotate(60  100 100)"/>
+        <line x1="100" y1="58" x2="100" y2="76" transform="rotate(120 100 100)"/>
+        <line x1="100" y1="58" x2="100" y2="76" transform="rotate(180 100 100)"/>
+        <line x1="100" y1="58" x2="100" y2="76" transform="rotate(240 100 100)"/>
+        <line x1="100" y1="58" x2="100" y2="76" transform="rotate(300 100 100)"/>
+      </g>
+
+      <!-- Core glow -->
+      <circle class="core-pulse" cx="100" cy="100" r="24"
+        fill="url(#core-grad)" filter="url(#core-glow)"/>
+      <circle class="core-bright" cx="100" cy="100" r="13"
+        fill="#00d4ff" opacity="0.95" filter="url(#glow-f)"/>
+      <circle cx="100" cy="100" r="5.5" fill="#e8f8ff"/>
+    </svg>
+  </div>
+
+  <p class="hero-eyebrow">STARK INDUSTRIES — ADVANCED INTELLIGENCE DIVISION</p>
+  <h1 class="hero-title">J.A.R.V.I.S.</h1>
+  <p class="hero-subtitle">Just A Rather Very Intelligent System</p>
+
+  <p class="hero-desc">
+    JARVIS narrates every Claude Code action in his iconic British voice,
+    visualizes your AI workflow as a live 3D arc reactor, and converses
+    with you while you code.
+  </p>
+
+  <div class="hero-cta">
+    <a href="https://github.com/coreylallojr/ARC_Reactor/releases/latest/download/arc-reactor-setup.exe"
+       class="btn-primary" id="download-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-7 4h14v-2H5v2z"/>
+      </svg>
+      Download for Windows
+    </a>
+    <a href="https://github.com/coreylallojr/ARC_Reactor" target="_blank"
+       rel="noopener" class="btn-secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+      </svg>
+      View on GitHub
+    </a>
+  </div>
+
+  <p class="hero-meta">
+    <span>v2.0</span> · Windows x64 · Free &amp; Open Source · ~50 MB
+  </p>
+</section>
+
+<div class="hud-divider"></div>
+
+<!-- ── Features ───────────────────────────────────────────────────────────── -->
+<section id="features">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="hud-label">Capabilities</span>
+      <h2>Everything JARVIS Was Built For</h2>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="hud-card reveal"><span class="corner-tr"></span><span class="corner-bl"></span>
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 2a3 3 0 013 3v6a3 3 0 01-6 0V5a3 3 0 013-3z"/>
+          <path d="M19 10a7 7 0 01-14 0M12 19v3M9 22h6"/>
+        </svg>
+        <p class="feat-title">Voice Narration</p>
+        <p class="feat-desc">
+          Every Claude Code action — file reads, edits, bash commands — is narrated
+          in JARVIS's dry British voice via a custom Piper TTS model trained on
+          Paul Bettany's performance.
+        </p>
+      </div>
+
+      <div class="hud-card reveal" style="transition-delay:0.07s"><span class="corner-tr"></span><span class="corner-bl"></span>
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="4"/>
+          <line x1="12" y1="2" x2="12" y2="5"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="5" y2="12"/>
+          <line x1="19" y1="12" x2="22" y2="12"/>
+        </svg>
+        <p class="feat-title">3D Arc Reactor</p>
+        <p class="feat-desc">
+          A real-time Three.js sphere of 152 nodes pulses with audio frequency
+          data. Bloom post-processing, dual shells, orbital rings, and signal
+          pulses visualize your session's activity live.
+        </p>
+      </div>
+
+      <div class="hud-card reveal" style="transition-delay:0.14s"><span class="corner-tr"></span><span class="corner-bl"></span>
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        <p class="feat-title">Voice Conversation</p>
+        <p class="feat-desc">
+          Speak directly to JARVIS using Web Speech API. He classifies intent —
+          answering questions instantly via Ollama, or delegating code tasks to
+          Claude Code and reporting back.
+        </p>
+      </div>
+
+      <div class="hud-card reveal" style="transition-delay:0.21s"><span class="corner-tr"></span><span class="corner-bl"></span>
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        <p class="feat-title">Text Chat Console</p>
+        <p class="feat-desc">
+          Pull up the slide-in console panel to chat with JARVIS in text. Full
+          conversation history with streaming token display and session-aware
+          context.
+        </p>
+      </div>
+
+      <div class="hud-card reveal" style="transition-delay:0.28s"><span class="corner-tr"></span><span class="corner-bl"></span>
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+        </svg>
+        <p class="feat-title">Proactive Intelligence</p>
+        <p class="feat-desc">
+          JARVIS checks in when you've been idle for 45 seconds, celebrates every
+          25-tool-call milestone, notices repeated errors, and volunteers
+          commentary on long sessions — unprompted.
+        </p>
+      </div>
+
+      <div class="hud-card reveal" style="transition-delay:0.35s"><span class="corner-tr"></span><span class="corner-bl"></span>
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+        </svg>
+        <p class="feat-title">Session Memory</p>
+        <p class="feat-desc">
+          Conversations persist across sessions at <code>~/.claude/jarvis-memory/</code>.
+          JARVIS summarises completed sessions via Ollama and recalls previous
+          context the next time you open Claude Code.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="hud-divider"></div>
+
+<!-- ── How it works ────────────────────────────────────────────────────────── -->
+<section id="how-it-works">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="hud-label">Protocol</span>
+      <h2>Up and Running in Three Steps</h2>
+    </div>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <p class="step-title">Install ARC Reactor</p>
+        <p class="step-desc">
+          Download and run the one-click Windows installer. The setup wizard
+          detects Python, installs the Piper TTS voice model, wires Claude Code
+          hooks, and launches JARVIS in your system tray.
+        </p>
+      </div>
+      <div class="step reveal" style="transition-delay:0.12s">
+        <div class="step-num">02</div>
+        <p class="step-title">Open Claude Code</p>
+        <p class="step-desc">
+          Start any project in Claude Code as normal. JARVIS's hooks fire
+          automatically on every tool call — no changes to your workflow required.
+        </p>
+      </div>
+      <div class="step reveal" style="transition-delay:0.24s">
+        <div class="step-num">03</div>
+        <p class="step-title">JARVIS Takes Over</p>
+        <p class="step-desc">
+          Watch the 3D sphere come alive as JARVIS narrates your session in real
+          time. Ask him questions by voice or text. He reports back. Sir.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hud-divider"></div>
+
+<!-- ── Install ─────────────────────────────────────────────────────────────── -->
+<section id="install">
+  <div class="container">
+    <div class="install-inner">
+
+      <div class="install-main reveal">
+        <span class="hud-label">One-Click Install</span>
+        <h2>Deploy JARVIS Now</h2>
+        <p>
+          The Windows installer handles everything — Python detection,
+          Piper TTS setup, Claude Code hook registration, and tray app launch.
+          No manual configuration required.
+        </p>
+
+        <a href="https://github.com/coreylallojr/ARC_Reactor/releases/latest/download/arc-reactor-setup.exe"
+           class="btn-primary" style="width: fit-content;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 16l-6-6h4V4h4v6h4l-6 6zm-7 4h14v-2H5v2z"/>
+          </svg>
+          Download arc-reactor-setup.exe
+        </a>
+
+        <div class="version-badge">
+          <span class="dot"></span>
+          <span>LATEST RELEASE · WINDOWS x64 · ELECTRON v31</span>
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.1s">
+        <p class="hud-label" style="margin-bottom:16px; display:block;">Installation Steps</p>
+        <ol class="install-steps">
+          <li><strong>Download</strong> <code>arc-reactor-setup.exe</code> from the button above</li>
+          <li><strong>Run</strong> the installer — it auto-installs silently to <code>%LOCALAPPDATA%\Programs</code></li>
+          <li>ARC Reactor <strong>launches automatically</strong> and appears in your system tray</li>
+          <li>On first run, the <strong>setup wizard</strong> detects Python and installs the Piper TTS model</li>
+          <li>Click <strong>Launch JARVIS</strong> — the neural UI opens in your browser at <code>localhost:7474</code></li>
+          <li>Open <strong>Claude Code</strong> in any project — JARVIS starts narrating immediately</li>
+        </ol>
+
+        <div style="margin-top:28px;">
+          <p class="hud-label" style="margin-bottom:12px; display:block;">System Requirements</p>
+          <div class="req-grid">
+            <div class="req-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="1"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <div><strong>Windows 10/11</strong> x64</div>
+            </div>
+            <div class="req-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              <div><strong>Claude Code</strong> CLI</div>
+            </div>
+            <div class="req-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+              <div><strong>Python 3.10+</strong> for TTS</div>
+            </div>
+            <div class="req-item">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+              <div><strong>Ollama</strong> for AI responses</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ── Footer ──────────────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-logo">◉ &nbsp; J.A.R.V.I.S — ARC REACTOR &nbsp; ◉</div>
+  <div class="footer-links">
+    <a href="https://github.com/coreylallojr/ARC_Reactor" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://github.com/coreylallojr/ARC_Reactor/releases" target="_blank" rel="noopener">Releases</a>
+    <a href="https://github.com/coreylallojr/ARC_Reactor/issues" target="_blank" rel="noopener">Issues</a>
+    <a href="https://github.com/coreylallojr/ARC_Reactor/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+  </div>
+  <p class="footer-copy">Built with Claude Code · Stark Industries &copy; 2025 · Not affiliated with Marvel</p>
+</footer>
+
+<script>
+// ── Particle canvas background ─────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes = [];
+  const N = 70, MAX_DIST = 140;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  for (let i = 0; i < N; i++) {
+    nodes.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 1.8 + 0.6,
+    });
+  }
+
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Update
+    for (const n of nodes) {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    }
+
+    // Edges
+    for (let i = 0; i < N; i++) {
+      for (let j = i + 1; j < N; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < MAX_DIST) {
+          ctx.strokeStyle = `rgba(0,180,220,${0.2 * (1 - d / MAX_DIST)})`;
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Dots
+    for (const n of nodes) {
+      ctx.fillStyle = 'rgba(0,200,240,0.6)';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+// ── Scroll reveal ──────────────────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

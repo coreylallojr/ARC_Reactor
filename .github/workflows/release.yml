@@ -1,0 +1,62 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows installer
+        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload installer to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "J.A.R.V.I.S — ARC Reactor ${{ github.ref_name }}"
+          body: |
+            ## ARC Reactor ${{ github.ref_name }}
+
+            **One-click Windows installer** — download, run, and JARVIS is live.
+
+            ### What's included
+            - JARVIS voice narration for every Claude Code action
+            - 3D arc reactor sphere visualization (Three.js)
+            - Voice conversation mode (STT → Ollama / Claude Code → TTS)
+            - Text chat console
+            - Proactive intelligence & session memory
+
+            ### Install
+            1. Download `arc-reactor-setup.exe` below
+            2. Run it — silently installs and launches automatically
+            3. Complete the first-run setup wizard
+            4. Open Claude Code — JARVIS narrates everything
+
+            ### Requirements
+            - Windows 10/11 x64
+            - [Claude Code](https://claude.ai/code) CLI
+            - [Ollama](https://ollama.com) with `llama3.2:1b`
+            - Python 3.10+ (installer detects automatically)
+          draft: false
+          prerelease: false
+          files: |
+            dist/arc-reactor-setup.exe
