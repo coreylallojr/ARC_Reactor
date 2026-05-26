@@ -1,0 +1,387 @@
+/* ── ARC Reactor — JARVIS Dark Theme ──────────────────────────────────────── */
+/* Overrides sphinx_rtd_theme for Stark Industries aesthetic                   */
+
+:root {
+  --arc-cyan:       #00d4ff;
+  --arc-blue:       #0094cc;
+  --arc-deep:       #005580;
+  --arc-glow:       rgba(0, 212, 255, 0.15);
+  --arc-glow-lg:    rgba(0, 212, 255, 0.08);
+  --bg-primary:     #000810;
+  --bg-nav:         #000d1a;
+  --bg-content:     #00060f;
+  --bg-sidebar:     #000d1a;
+  --text-primary:   #cce8ff;
+  --text-secondary: #7ab8d4;
+  --text-dim:       #3a6080;
+  --border:         rgba(0, 148, 204, 0.18);
+}
+
+/* ── Global background ──────────────────────────────────────────────────────── */
+body,
+.wy-nav-content-wrap,
+.wy-nav-content,
+div[role="main"],
+.rst-content {
+  background: var(--bg-content) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Navigation sidebar ─────────────────────────────────────────────────────── */
+.wy-nav-side {
+  background: var(--bg-nav) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+.wy-side-nav-search {
+  background: #000d1a !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.wy-side-nav-search > a,
+.wy-side-nav-search > a:hover {
+  color: var(--arc-cyan) !important;
+}
+
+.wy-side-nav-search input[type=text] {
+  background: rgba(0, 20, 40, 0.8) !important;
+  border: 1px solid var(--arc-deep) !important;
+  color: var(--text-primary) !important;
+  border-radius: 2px !important;
+}
+
+.wy-menu-vertical a {
+  color: var(--text-secondary) !important;
+}
+
+.wy-menu-vertical a:hover,
+.wy-menu-vertical li.current > a {
+  color: var(--arc-cyan) !important;
+  background: rgba(0, 148, 204, 0.08) !important;
+}
+
+.wy-menu-vertical li.current > a {
+  border-right: 2px solid var(--arc-cyan) !important;
+}
+
+.wy-menu-vertical .subnav a { color: var(--text-dim) !important; }
+.wy-menu-vertical .subnav a:hover { color: var(--arc-blue) !important; }
+
+/* ── Top header bar ─────────────────────────────────────────────────────────── */
+.wy-nav-top {
+  background: #000d1a !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* ── Content headings ───────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6,
+.rst-content h1, .rst-content h2,
+.rst-content h3, .rst-content h4 {
+  color: var(--arc-cyan) !important;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  letter-spacing: 0.04em !important;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.3) !important;
+}
+
+h1, .rst-content h1 {
+  border-bottom: 1px solid var(--border) !important;
+  padding-bottom: 10px !important;
+  font-size: 2em !important;
+  letter-spacing: 0.12em !important;
+}
+
+h2, .rst-content h2 {
+  border-bottom: 1px solid rgba(0, 148, 204, 0.12) !important;
+  padding-bottom: 6px !important;
+  letter-spacing: 0.08em !important;
+}
+
+/* ── Links ──────────────────────────────────────────────────────────────────── */
+a, .rst-content a {
+  color: var(--arc-cyan) !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid transparent !important;
+  transition: border-color 0.2s, text-shadow 0.2s !important;
+}
+
+a:hover, .rst-content a:hover {
+  color: #80eeff !important;
+  border-bottom-color: rgba(0, 212, 255, 0.4) !important;
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.4) !important;
+}
+
+/* ── Code blocks ────────────────────────────────────────────────────────────── */
+.highlight, pre, .rst-content pre {
+  background: #000d1a !important;
+  border: 1px solid rgba(0, 148, 204, 0.2) !important;
+  border-radius: 3px !important;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.04) inset !important;
+}
+
+.highlight .c1, .highlight .cm { color: #3a6080 !important; }   /* comments */
+.highlight .s,  .highlight .s2 { color: #00cc88 !important; }   /* strings */
+.highlight .k,  .highlight .kd { color: #80aaff !important; }   /* keywords */
+.highlight .nb { color: var(--arc-cyan) !important; }            /* builtins */
+.highlight .mi { color: #ff9966 !important; }                    /* numbers */
+
+code, .rst-content code {
+  background: rgba(0, 20, 40, 0.8) !important;
+  color: var(--arc-cyan) !important;
+  border: 1px solid rgba(0, 148, 204, 0.15) !important;
+  border-radius: 2px !important;
+  padding: 1px 5px !important;
+  font-size: 0.9em !important;
+}
+
+/* ── Admonitions (note, warning, tip) ──────────────────────────────────────── */
+.rst-content .note,
+.rst-content .tip,
+.rst-content .important {
+  background: rgba(0, 20, 50, 0.7) !important;
+  border-left: 4px solid var(--arc-cyan) !important;
+  border-radius: 0 3px 3px 0 !important;
+}
+
+.rst-content .warning,
+.rst-content .caution {
+  background: rgba(30, 15, 0, 0.7) !important;
+  border-left: 4px solid #ff9900 !important;
+}
+
+.rst-content .note .admonition-title,
+.rst-content .tip .admonition-title,
+.rst-content .important .admonition-title {
+  background: rgba(0, 148, 204, 0.15) !important;
+  color: var(--arc-cyan) !important;
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────────────── */
+.rst-content table.docutils {
+  background: transparent !important;
+  border: 1px solid var(--border) !important;
+}
+
+.rst-content table.docutils thead {
+  background: rgba(0, 20, 50, 0.8) !important;
+}
+
+.rst-content table.docutils thead th {
+  color: var(--arc-cyan) !important;
+  border-bottom: 2px solid var(--arc-deep) !important;
+  letter-spacing: 0.06em !important;
+}
+
+.rst-content table.docutils td {
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+.rst-content table.docutils tr:nth-child(even) td {
+  background: rgba(0, 148, 204, 0.03) !important;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--arc-deep); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--arc-blue); }
+
+/* ── Footer ─────────────────────────────────────────────────────────────────── */
+footer, .rst-footer-buttons {
+  border-top: 1px solid var(--border) !important;
+}
+
+footer p { color: var(--text-dim) !important; font-size: 0.8em !important; }
+
+/* ── Hero section (landing page) ────────────────────────────────────────────── */
+.jarvis-hero {
+  text-align: center;
+  padding: 60px 20px 50px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 48px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,212,255,0.07) 0%, transparent 70%);
+  position: relative;
+  overflow: hidden;
+}
+
+.jarvis-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 39px,
+    rgba(0,148,204,0.03) 39px,
+    rgba(0,148,204,0.03) 40px
+  );
+  pointer-events: none;
+}
+
+.jarvis-hero img.hero-logo {
+  width: 140px;
+  height: auto;
+  margin-bottom: 28px;
+  filter: drop-shadow(0 0 24px rgba(0,212,255,0.5));
+  animation: hero-pulse 4s ease-in-out infinite;
+}
+
+@keyframes hero-pulse {
+  0%, 100% { filter: drop-shadow(0 0 24px rgba(0,212,255,0.5)); }
+  50%       { filter: drop-shadow(0 0 40px rgba(0,212,255,0.85)); }
+}
+
+.jarvis-hero h1.hero-title {
+  font-size: 3.2em !important;
+  letter-spacing: 0.35em !important;
+  color: var(--arc-cyan) !important;
+  text-shadow: 0 0 40px rgba(0,212,255,0.6), 0 0 80px rgba(0,212,255,0.2) !important;
+  margin: 0 0 8px !important;
+  border: none !important;
+}
+
+.jarvis-hero .hero-subtitle {
+  font-size: 0.85em;
+  letter-spacing: 0.3em;
+  color: var(--text-dim);
+  margin-bottom: 40px;
+  font-family: 'Helvetica Neue', monospace;
+  text-transform: uppercase;
+}
+
+.hero-install-box {
+  display: inline-block;
+  background: rgba(0, 20, 40, 0.9);
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  border-radius: 4px;
+  padding: 18px 32px;
+  margin: 0 auto 32px;
+  position: relative;
+  box-shadow: 0 0 30px rgba(0,212,255,0.08), inset 0 0 20px rgba(0,212,255,0.03);
+}
+
+.hero-install-box .install-label {
+  font-size: 9px;
+  letter-spacing: 0.4em;
+  color: var(--arc-deep);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.hero-install-box code {
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 1em !important;
+  color: #80eeff !important;
+  background: transparent !important;
+  border: none !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1.6 !important;
+}
+
+.hero-badges {
+  margin-top: 28px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* ── Feature grid ────────────────────────────────────────────────────────────── */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin: 40px 0;
+}
+
+.feature-card {
+  background: rgba(0, 20, 40, 0.5);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 24px 20px;
+  position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 20px rgba(0,212,255,0.06);
+}
+
+.feature-card .fc-icon {
+  font-size: 22px;
+  margin-bottom: 12px;
+  display: block;
+  color: var(--arc-cyan);
+}
+
+.feature-card h3 {
+  font-size: 0.85em !important;
+  letter-spacing: 0.15em !important;
+  color: var(--arc-cyan) !important;
+  margin-bottom: 8px !important;
+  border: none !important;
+  text-shadow: none !important;
+}
+
+.feature-card p {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Step-by-step install cards ──────────────────────────────────────────────── */
+.install-steps {
+  counter-reset: step-counter;
+}
+
+.install-step {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: rgba(0, 20, 40, 0.4);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  counter-increment: step-counter;
+  position: relative;
+}
+
+.install-step::before {
+  content: counter(step-counter, decimal-leading-zero);
+  font-size: 28px;
+  font-weight: 700;
+  color: rgba(0, 212, 255, 0.2);
+  font-family: 'Courier New', monospace;
+  min-width: 48px;
+  line-height: 1;
+}
+
+.install-step-content h4 {
+  color: var(--arc-cyan) !important;
+  font-size: 0.9em !important;
+  letter-spacing: 0.1em !important;
+  margin-bottom: 6px !important;
+  text-shadow: none !important;
+  border: none !important;
+}
+
+.install-step-content p {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
