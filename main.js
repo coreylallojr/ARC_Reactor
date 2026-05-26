@@ -10,17 +10,19 @@ const { spawn, execSync } = require('child_process');
 const http = require('http');
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
-const APP_DIR      = app.getAppPath();
-const NEURAL_DIR   = path.join(APP_DIR, 'Neural');
-const CONFIG_PATH  = path.join(NEURAL_DIR, 'config.json');
-const SERVER_SCRIPT = path.join(NEURAL_DIR, 'scripts', 'neural-ui-server.js');
-const SETUP_HTML   = path.join(APP_DIR, 'setup', 'setup.html');
+const APP_DIR        = app.getAppPath();
+const NEURAL_DIR     = path.join(APP_DIR, 'Neural');
+const CONFIG_PATH    = path.join(NEURAL_DIR, 'config.json');
+const SERVER_SCRIPT  = path.join(NEURAL_DIR, 'scripts', 'neural-ui-server.js');
+const VOICE_SCRIPT   = path.join(NEURAL_DIR, 'scripts', 'jarvis-voice-server.js');
+const SETUP_HTML     = path.join(APP_DIR, 'setup', 'setup.html');
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let tray          = null;
-let serverProcess = null;
-let setupWindow   = null;
-let serverOnline  = false;
+let tray               = null;
+let serverProcess      = null;
+let voiceServerProcess = null;
+let setupWindow        = null;
+let serverOnline       = false;
 
 // ── Tray icon: arc reactor ring generated from raw RGBA ───────────────────────
 function buildTrayIcon() {
@@ -84,6 +86,17 @@ async function startServer() {
   });
   serverProcess.on('exit', () => { serverProcess = null; serverOnline = false; updateTray(); });
 
+  // Start voice server alongside neural server
+  if (!voiceServerProcess) {
+    voiceServerProcess = spawn(process.execPath, [VOICE_SCRIPT], {
+      cwd: NEURAL_DIR,
+      detached: false,
+      stdio: 'ignore',
+      windowsHide: true,
+    });
+    voiceServerProcess.on('exit', () => { voiceServerProcess = null; });
+  }
+
   // Poll until up
   for (let i = 0; i < 20; i++) {
     await new Promise(r => setTimeout(r, 400));
@@ -99,6 +112,10 @@ async function startServer() {
 }
 
 function stopServer() {
+  if (voiceServerProcess) {
+    try { voiceServerProcess.kill(); } catch {}
+    voiceServerProcess = null;
+  }
   if (!serverProcess) return;
   try { serverProcess.kill(); } catch {}
   serverProcess = null;

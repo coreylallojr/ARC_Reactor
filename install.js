@@ -125,10 +125,14 @@ async function main() {
     ollamaModel: 'llama3.2:1b',
     patternThreshold: 3,
     speakMinLevel: 1,
+    voiceMode: 2,
     maxContextMode: false,
     sessionStartBonus: 2,
     errorBonus: 4,
     consecutiveSamePenalty: 1,
+    voiceServerPort: 7475,
+    sttBackend: 'webspeech',
+    wakeWord: false,
     toolScores: { Read:1, Grep:1, Glob:1, Edit:2, Write:3, Bash:3, Agent:4 },
   };
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
