@@ -1,0 +1,54 @@
+{
+  "name": "arc-reactor",
+  "version": "1.0.0",
+  "description": "J.A.R.V.I.S — AI Agent Voice Interface for Claude Code",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "install-hooks": "node install.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.jarvis.arc-reactor",
+    "productName": "ARC Reactor",
+    "copyright": "Copyright © 2025",
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "shortcutName": "ARC Reactor"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "Neural/**/*",
+      "python/**/*",
+      "assets/**/*",
+      "setup/**/*",
+      "!Neural/.session-state.json",
+      "!Neural/.pending-audio",
+      "!Neural/.voice-lock",
+      "!Neural/.server.pid",
+      "!Neural/tool-log.jsonl",
+      "!Neural/current.md"
+    ]
+  }
+}

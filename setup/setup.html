@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+<title>J.A.R.V.I.S — Setup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #000810;
+    color: #cceeff;
+    font-family: 'Courier New', monospace;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  #header {
+    text-align: center;
+    padding: 28px 0 18px;
+    border-bottom: 1px solid rgba(0,180,255,.15);
+  }
+  #header .title {
+    font-size: 11px;
+    letter-spacing: .55em;
+    color: rgba(0,200,255,.8);
+    text-shadow: 0 0 18px rgba(0,180,255,.5);
+  }
+  #header .sub {
+    font-size: 9px;
+    letter-spacing: .3em;
+    color: rgba(0,120,180,.45);
+    margin-top: 6px;
+  }
+  #steps {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 0 10px;
+    border-bottom: 1px solid rgba(0,180,255,.08);
+  }
+  .step-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(0,140,200,.2);
+    border: 1px solid rgba(0,180,255,.3);
+    transition: background .3s;
+  }
+  .step-dot.active { background: rgba(0,200,255,.8); box-shadow: 0 0 8px rgba(0,200,255,.6); }
+  .step-dot.done   { background: rgba(0,180,100,.6); border-color: rgba(0,200,100,.4); }
+  #content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 40px;
+  }
+  #content::-webkit-scrollbar { width: 4px; }
+  #content::-webkit-scrollbar-track { background: transparent; }
+  #content::-webkit-scrollbar-thumb { background: rgba(0,180,255,.2); border-radius: 2px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  h2 {
+    font-size: 11px;
+    letter-spacing: .35em;
+    color: rgba(0,200,255,.7);
+    margin-bottom: 18px;
+  }
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,180,255,.06);
+  }
+  .check-icon { font-size: 16px; width: 22px; text-align: center; }
+  .check-label { flex: 1; font-size: 11px; letter-spacing: .06em; color: rgba(200,230,255,.7); }
+  .check-status { font-size: 10px; letter-spacing: .1em; }
+  .ok    { color: rgba(0,200,100,.9); }
+  .warn  { color: rgba(255,180,0,.9); }
+  .err   { color: rgba(255,80,80,.9); }
+  .dim   { color: rgba(100,140,180,.5); }
+  label { font-size: 10px; letter-spacing: .15em; color: rgba(0,180,255,.6); display: block; margin: 14px 0 6px; }
+  input[type=text] {
+    width: 100%;
+    background: rgba(0,20,40,.8);
+    border: 1px solid rgba(0,180,255,.2);
+    color: #cceeff;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 8px 12px;
+    border-radius: 2px;
+    outline: none;
+    transition: border .2s;
+  }
+  input[type=text]:focus { border-color: rgba(0,200,255,.5); }
+  .browse-row { display: flex; gap: 8px; }
+  .browse-row input { flex: 1; }
+  button {
+    background: transparent;
+    border: 1px solid rgba(0,180,255,.4);
+    color: rgba(0,200,255,.85);
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: .2em;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all .2s;
+  }
+  button:hover { background: rgba(0,180,255,.1); border-color: rgba(0,200,255,.7); }
+  button.primary {
+    background: rgba(0,140,220,.15);
+    border-color: rgba(0,200,255,.6);
+    color: rgba(0,220,255,.95);
+    padding: 10px 28px;
+    font-size: 11px;
+  }
+  button.primary:hover { background: rgba(0,160,255,.25); }
+  button:disabled { opacity: .35; cursor: not-allowed; }
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 40px;
+    border-top: 1px solid rgba(0,180,255,.1);
+  }
+  .info-box {
+    background: rgba(0,40,80,.3);
+    border: 1px solid rgba(0,180,255,.12);
+    border-radius: 3px;
+    padding: 12px 16px;
+    font-size: 10px;
+    line-height: 1.7;
+    color: rgba(160,210,255,.6);
+    margin: 14px 0;
+  }
+  .info-box a { color: rgba(0,200,255,.8); text-decoration: none; }
+  .progress-bar {
+    width: 100%;
+    height: 2px;
+    background: rgba(0,140,200,.15);
+    border-radius: 1px;
+    margin: 8px 0 16px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: rgba(0,200,255,.6);
+    width: 0%;
+    transition: width .4s;
+    box-shadow: 0 0 8px rgba(0,200,255,.4);
+  }
+  .log-line { font-size: 10px; color: rgba(120,180,220,.6); line-height: 1.6; }
+  .log-line.success { color: rgba(0,200,100,.8); }
+  .log-line.error   { color: rgba(255,100,80,.8); }
+  .big-check { text-align: center; padding: 30px 0; font-size: 48px; }
+  .final-msg { text-align: center; font-size: 11px; letter-spacing: .2em; color: rgba(0,200,255,.7); margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="title">◉ &nbsp; J · A · R · V · I · S &nbsp; ◉</div>
+  <div class="sub">FIRST RUN SETUP &nbsp;·&nbsp; ARC REACTOR</div>
+</div>
+
+<div id="steps">
+  <div class="step-dot active" id="dot0"></div>
+  <div class="step-dot" id="dot1"></div>
+  <div class="step-dot" id="dot2"></div>
+  <div class="step-dot" id="dot3"></div>
+</div>
+
+<div id="content">
+
+  <!-- Page 0: System Check -->
+  <div class="page active" id="page0">
+    <h2>◈ &nbsp; SYSTEM CHECK</h2>
+    <div class="check-row">
+      <span class="check-icon">⬡</span>
+      <span class="check-label">Node.js</span>
+      <span class="check-status dim" id="chk-node">checking...</span>
+    </div>
+    <div class="check-row">
+      <span class="check-icon">⬡</span>
+      <span class="check-label">Python 3.x</span>
+      <span class="check-status dim" id="chk-python">checking...</span>
+    </div>
+    <div class="check-row">
+      <span class="check-icon">⬡</span>
+      <span class="check-label">Ollama (local LLM)</span>
+      <span class="check-status dim" id="chk-ollama">checking...</span>
+    </div>
+    <div class="check-row">
+      <span class="check-icon">⬡</span>
+      <span class="check-label">Piper JARVIS voice model</span>
+      <span class="check-status dim" id="chk-piper">checking...</span>
+    </div>
+    <div class="check-row">
+      <span class="check-icon">⬡</span>
+      <span class="check-label">Claude Code CLI</span>
+      <span class="check-status dim" id="chk-claude">checking...</span>
+    </div>
+    <div class="info-box">
+      Missing something? Installation guide:<br>
+      · <strong>Ollama</strong>: <a href="https://ollama.com">ollama.com</a> → then run <code>ollama pull llama3.2:1b</code><br>
+      · <strong>Python 3</strong>: <a href="https://python.org">python.org</a> → then <code>pip install piper-tts</code><br>
+      · <strong>Piper model</strong>: See README for the JARVIS voice model download link<br>
+      · <strong>Claude Code</strong>: <code>npm install -g @anthropic-ai/claude-code</code>
+    </div>
+  </div>
+
+  <!-- Page 1: Python + Piper Path -->
+  <div class="page" id="page1">
+    <h2>◈ &nbsp; PYTHON PATH</h2>
+    <label>Python 3.x executable</label>
+    <div class="browse-row">
+      <input type="text" id="python-path" placeholder="e.g. C:\Python312\python.exe or /usr/bin/python3">
+      <button onclick="browsePython()">BROWSE</button>
+      <button onclick="detectPython()">DETECT</button>
+    </div>
+    <div class="check-status dim" id="python-check" style="margin-top:8px;font-size:10px;"></div>
+
+    <label style="margin-top:24px;">Piper model directory <span class="dim">(contains jarvis-medium.onnx)</span></label>
+    <div class="info-box">
+      Download the JARVIS voice model from the README and extract to:<br>
+      <code>~/.claude/jarvis-piper/</code><br><br>
+      Files needed:<br>
+      · <code>jarvis-medium.onnx</code><br>
+      · <code>jarvis-medium.onnx.json</code>
+    </div>
+    <div class="check-status dim" id="piper-check" style="font-size:10px;"></div>
+  </div>
+
+  <!-- Page 2: Install Hooks -->
+  <div class="page" id="page2">
+    <h2>◈ &nbsp; INSTALL HOOKS</h2>
+    <div class="info-box">
+      JARVIS hooks into Claude Code to narrate every action.<br>
+      This writes two entries to <code>~/.claude/settings.json</code> — fully reversible.<br><br>
+      It also adds a <code>jarvis</code> command to your shell profile so you can type<br>
+      <code>jarvis start</code> from any terminal to launch everything.
+    </div>
+    <div id="hook-log" style="margin-top:16px;"></div>
+    <div class="progress-bar"><div class="progress-fill" id="hook-progress"></div></div>
+  </div>
+
+  <!-- Page 3: Done -->
+  <div class="page" id="page3">
+    <div class="big-check">◉</div>
+    <div class="final-msg">SYSTEMS ONLINE, SIR</div>
+    <div class="info-box" style="margin-top:24px;text-align:center;">
+      JARVIS is now wired into Claude Code.<br><br>
+      Every time Claude runs a tool, JARVIS will narrate it with a voice line.<br>
+      The Neural UI shows a live 3D visualization that pulses with the audio.<br><br>
+      <strong>From any terminal:</strong> <code>jarvis start</code><br>
+      <strong>Voice narration level:</strong> <code>jarvis voice all|key|mute</code>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <button onclick="prevPage()" id="btn-back" style="display:none;">BACK</button>
+  <button class="primary" onclick="nextPage()" id="btn-next">NEXT →</button>
+  <button class="primary" onclick="launch()" id="btn-launch" style="display:none;">LAUNCH JARVIS ◉</button>
+</div>
+
+<script>
+let currentPage = 0;
+let pythonVersion = null;
+let config = {};
+let checks = { node: false, python: false, ollama: false, piper: false, claude: false };
+
+async function init() {
+  config = await window.jarvis.getConfig();
+
+  // Node — always present since Electron bundles it
+  setCheck('node', 'ok', `Node ${process.versions.node}`);
+  checks.node = true;
+
+  // Python
+  const candidates = [
+    config.pythonPath,
+    'python3', 'python',
+    'C:\\Python312\\python.exe',
+    'C:\\Python311\\python.exe',
+    'C:\\Users\\' + (await window.jarvis.getHomeDir()).split(/[/\\]/).pop() + '\\AppData\\Local\\Programs\\Python\\Python312\\python.exe',
+  ].filter(Boolean);
+
+  for (const c of candidates) {
+    const v = await window.jarvis.probePython(c);
+    if (v) {
+      pythonVersion = c;
+      setCheck('python', 'ok', v);
+      checks.python = true;
+      break;
+    }
+  }
+  if (!checks.python) setCheck('python', 'warn', 'not found — configure on next page');
+
+  // Ollama
+  const ollamaOk = await window.jarvis.probeOllama();
+  setCheck('ollama', ollamaOk ? 'ok' : 'warn', ollamaOk ? 'running' : 'not running (start it before launching)');
+  checks.ollama = ollamaOk;
+
+  // Piper model
+  const piperOk = await window.jarvis.probePiperModel();
+  setCheck('piper', piperOk ? 'ok' : 'err', piperOk ? 'model found' : 'missing — see README');
+  checks.piper = piperOk;
+
+  // Claude Code
+  const ccOk = await window.jarvis.probeClaudeCode();
+  setCheck('claude', ccOk ? 'ok' : 'warn', ccOk ? 'installed' : 'not found in PATH');
+  checks.claude = ccOk;
+}
+
+function setCheck(id, level, text) {
+  const el = document.getElementById('chk-' + id);
+  if (!el) return;
+  el.className = 'check-status ' + level;
+  el.textContent = text;
+  const icon = el.previousElementSibling.previousElementSibling;
+  if (icon) icon.textContent = level === 'ok' ? '◆' : level === 'warn' ? '◈' : '○';
+}
+
+async function detectPython() {
+  const input = document.getElementById('python-path');
+  const statusEl = document.getElementById('python-check');
+  const candidates = ['python3', 'python', 'python3.12', 'python3.11'];
+  for (const c of candidates) {
+    statusEl.textContent = `Trying ${c}...`;
+    const v = await window.jarvis.probePython(c);
+    if (v) {
+      input.value = c;
+      statusEl.className = 'check-status ok';
+      statusEl.textContent = `✓ ${v}`;
+      pythonVersion = c;
+      return;
+    }
+  }
+  statusEl.className = 'check-status err';
+  statusEl.textContent = 'Could not auto-detect. Browse to your python.exe manually.';
+}
+
+async function browsePython() {
+  const p = await window.jarvis.openFileDialog({
+    title: 'Select Python executable',
+    filters: [{ name: 'Python', extensions: ['exe', ''] }],
+  });
+  if (p) {
+    document.getElementById('python-path').value = p;
+    const v = await window.jarvis.probePython(p);
+    const statusEl = document.getElementById('python-check');
+    if (v) {
+      statusEl.className = 'check-status ok';
+      statusEl.textContent = `✓ ${v}`;
+      pythonVersion = p;
+    } else {
+      statusEl.className = 'check-status err';
+      statusEl.textContent = 'Could not run python at that path.';
+    }
+  }
+}
+
+async function runInstall() {
+  const log = (msg, cls = '') => {
+    const el = document.getElementById('hook-log');
+    el.innerHTML += `<div class="log-line ${cls}">${msg}</div>`;
+  };
+  const progress = (pct) => { document.getElementById('hook-progress').style.width = pct + '%'; };
+
+  const pyPath = document.getElementById('python-path')?.value || pythonVersion || config.pythonPath;
+  const homeDir = await window.jarvis.getHomeDir();
+  const neuralDir = await window.jarvis.getNeuralDir();
+
+  log('Saving configuration...');
+  progress(20);
+  const saveResult = await window.jarvis.saveConfig({
+    pythonPath: pyPath || config.pythonPath,
+    jarvisSpeakPath: homeDir + '/.claude/jarvis_speak.py',
+    neural: neuralDir.replace(/\\/g, '/'),
+    vault: neuralDir.replace(/[/\\]Neural$/, '').replace(/\\/g, '/'),
+    ollamaUrl: config.ollamaUrl || 'http://localhost:11434/v1/chat/completions',
+    ollamaModel: config.ollamaModel || 'llama3.2:1b',
+    speakMinLevel: 1,
+    maxContextMode: false,
+    patternThreshold: 3,
+    sessionStartBonus: 2,
+    errorBonus: 4,
+    consecutiveSamePenalty: 1,
+    toolScores: { Read:1, Grep:1, Glob:1, Edit:2, Write:3, Bash:3, Agent:4 },
+  });
+  if (saveResult.ok) log('✓ Configuration saved', 'success');
+  else log('✗ Config save failed: ' + saveResult.error, 'error');
+
+  progress(45);
+  log('Writing Claude Code hooks...');
+  const hooksResult = await window.jarvis.writeHooks();
+  if (hooksResult.ok) log('✓ Hooks written to ~/.claude/settings.json', 'success');
+  else log('✗ Hooks failed: ' + hooksResult.error, 'error');
+
+  progress(70);
+  log('Writing shell alias...');
+  const aliasResult = await window.jarvis.writeShellAlias();
+  if (aliasResult.ok) log('✓ "jarvis" command added to shell profile', 'success');
+  else log('✗ Alias failed: ' + aliasResult.error, 'error');
+
+  progress(100);
+  log('Setup complete.', 'success');
+}
+
+let installDone = false;
+
+async function nextPage() {
+  if (currentPage === 0) {
+    goTo(1);
+    if (pythonVersion) document.getElementById('python-path').value = pythonVersion;
+  } else if (currentPage === 1) {
+    const pyPath = document.getElementById('python-path').value.trim();
+    if (pyPath) pythonVersion = pyPath;
+    goTo(2);
+    if (!installDone) { installDone = true; await runInstall(); }
+    document.getElementById('btn-next').style.display = 'none';
+    document.getElementById('btn-launch').style.display = '';
+    goTo(3);
+  }
+}
+
+function prevPage() {
+  if (currentPage > 0) goTo(currentPage - 1);
+}
+
+function goTo(n) {
+  document.querySelectorAll('.page').forEach((p, i) => {
+    p.classList.toggle('active', i === n);
+  });
+  document.querySelectorAll('.step-dot').forEach((d, i) => {
+    d.className = 'step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+  });
+  document.getElementById('btn-back').style.display = n > 0 ? '' : 'none';
+  currentPage = n;
+}
+
+async function launch() {
+  await window.jarvis.launchJarvis();
+}
+
+init();
+</script>
+</body>
+</html>

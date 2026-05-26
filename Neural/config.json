@@ -1,0 +1,23 @@
+{
+  "vault": "",
+  "neural": "",
+  "pythonPath": "",
+  "jarvisSpeakPath": "",
+  "ollamaUrl": "http://localhost:11434/v1/chat/completions",
+  "ollamaModel": "llama3.2:1b",
+  "patternThreshold": 3,
+  "speakMinLevel": 1,
+  "maxContextMode": false,
+  "sessionStartBonus": 2,
+  "errorBonus": 4,
+  "consecutiveSamePenalty": 1,
+  "toolScores": {
+    "Read": 1,
+    "Grep": 1,
+    "Glob": 1,
+    "Edit": 2,
+    "Write": 3,
+    "Bash": 3,
+    "Agent": 4
+  }
+}

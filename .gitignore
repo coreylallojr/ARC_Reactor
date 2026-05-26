@@ -1,0 +1,31 @@
+node_modules/
+dist/
+out/
+
+# Runtime state files
+Neural/.session-state.json
+Neural/.pending-audio
+Neural/.voice-lock
+Neural/.tts-active
+Neural/.server.pid
+Neural/.voice-history.json
+Neural/.voice-spoken
+Neural/tool-log.jsonl
+Neural/current.md
+Neural/status.md
+Neural/hook-probe-output.json
+Neural/context/active-task.md
+Neural/context/current-intent.md
+Neural/context/hot-paths.md
+Neural/context/recent-errors.md
+
+# Keep directory structure
+!Neural/context/.gitkeep
+!Neural/patterns/.gitkeep
+!Neural/sessions/.gitkeep
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db

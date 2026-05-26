@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JARVIS Neural Core</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; overflow:hidden; background:#000; user-select:none; }
+canvas { display:block; }
+body { font-family:'Courier New',monospace; color:#44aadd; }
+
+.hud {
+  position:fixed; z-index:10;
+  background:rgba(0,6,20,.7);
+  border:1px solid rgba(0,150,255,.2);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  padding:11px 15px; font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; line-height:1.75; pointer-events:none;
+}
+#h1 { top:20px; left:20px; min-width:160px; }
+#h1::before { content:''; position:absolute; top:-1px; left:-1px; width:9px; height:9px; border-top:2px solid rgba(0,180,255,.6); border-left:2px solid rgba(0,180,255,.6); }
+#h2 { top:20px; right:20px; text-align:right; min-width:160px; }
+#h2::before { content:''; position:absolute; top:-1px; right:-1px; width:9px; height:9px; border-top:2px solid rgba(0,180,255,.6); border-right:2px solid rgba(0,180,255,.6); }
+.lbl { color:rgba(0,140,220,.5); font-size:8.5px; letter-spacing:.22em; }
+.val { color:#88d8ff; font-size:12px; font-weight:bold; }
+hr.d { border:none; border-top:1px solid rgba(0,150,255,.12); margin:6px 0; }
+.trow { display:flex; justify-content:space-between; gap:14px; font-size:9.5px; margin-top:2px; }
+.tn { color:rgba(0,130,200,.55); } .tv { color:#66ccff; font-weight:bold; }
+
+#dot { display:inline-block; width:5px; height:5px; border-radius:50%; margin-right:5px; vertical-align:middle; transition:background .4s, box-shadow .4s; background:#0066aa; box-shadow:0 0 4px #0066aa; }
+#dot.active { background:#00ddaa; box-shadow:0 0 8px #00ddaa; animation:p .9s ease-in-out infinite; }
+#dot.speak  { background:#aaeeff; box-shadow:0 0 12px #66ccff; animation:p .4s ease-in-out infinite; }
+#dot.idle   { background:#001833; box-shadow:none; }
+@keyframes p { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+#tt { position:fixed; top:22px; left:50%; transform:translateX(-50%); text-align:center; pointer-events:none; z-index:10; }
+#tt .m { font-size:10px; letter-spacing:.5em; color:rgba(0,160,255,.3); text-shadow:0 0 14px rgba(0,140,255,.25); }
+#tt .s { font-size:7px; letter-spacing:.34em; color:rgba(0,100,180,.2); margin-top:2px; }
+
+#vbar { position:fixed; bottom:0; left:0; right:0; z-index:10; text-align:center; padding:18px 60px 24px; background:linear-gradient(transparent,rgba(0,4,16,.9) 55%); pointer-events:none; }
+#vtxt { font-size:15px; letter-spacing:.09em; color:#cceeff; text-shadow:0 0 18px rgba(0,210,255,.9),0 0 45px rgba(0,120,255,.4); opacity:0; transition:opacity .55s; font-style:italic; min-height:22px; }
+#vtxt.show { opacity:1; }
+
+#wc { position:fixed; bottom:52px; left:10%; width:80%; height:48px; z-index:11; opacity:0; transition:opacity .35s; pointer-events:none; }
+#wc.show { opacity:1; }
+#sl { position:fixed; bottom:18px; right:20px; font-size:8px; letter-spacing:.22em; color:rgba(0,100,160,.25); pointer-events:none; z-index:10; }
+#audio-prompt { display:none; position:fixed; bottom:52px; left:50%; transform:translateX(-50%); background:rgba(0,10,30,.85); border:1px solid rgba(0,180,255,.5); color:rgba(0,220,255,.9); padding:8px 24px; border-radius:3px; font-size:10px; letter-spacing:.3em; cursor:pointer; z-index:50; text-shadow:0 0 12px rgba(0,200,255,.8); animation:apulse 2s ease-in-out infinite; }
+@keyframes apulse { 0%,100%{box-shadow:0 0 8px rgba(0,180,255,.3)} 50%{box-shadow:0 0 22px rgba(0,180,255,.7)} }
+
+#settings {
+  position:fixed; z-index:30;
+  top:50%; left:50%; transform:translate(-50%,-50%);
+  background:rgba(0,5,18,.92);
+  border:1px solid rgba(0,160,255,.3);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  padding:22px 28px 20px; min-width:248px; display:none;
+}
+#settings.open { display:block; }
+#settings::before { content:''; position:absolute; top:-1px; left:-1px; width:10px; height:10px; border-top:2px solid rgba(0,200,255,.7); border-left:2px solid rgba(0,200,255,.7); }
+#settings::after  { content:''; position:absolute; bottom:-1px; right:-1px; width:10px; height:10px; border-bottom:2px solid rgba(0,200,255,.7); border-right:2px solid rgba(0,200,255,.7); }
+.stitle { color:rgba(0,160,255,.55); font-size:8px; letter-spacing:.3em; margin-bottom:10px; }
+.vbtn {
+  display:block; width:100%; padding:8px 12px; margin-bottom:6px;
+  background:rgba(0,30,70,.5); border:1px solid rgba(0,100,200,.2);
+  color:#44aadd; font-family:'Courier New',monospace; font-size:10px;
+  letter-spacing:.12em; text-align:left; cursor:pointer;
+  text-transform:uppercase; transition:background .15s, border-color .15s, color .15s;
+}
+.vbtn:hover { background:rgba(0,55,110,.65); border-color:rgba(0,170,255,.4); color:#88d8ff; }
+.vbtn.act  { background:rgba(0,70,150,.55); border-color:rgba(0,210,255,.65); color:#aaeeff; box-shadow:0 0 10px rgba(0,160,255,.2) inset; }
+.krow { display:flex; gap:10px; align-items:center; margin-top:5px; font-size:9px; }
+.kk  { background:rgba(0,50,100,.55); border:1px solid rgba(0,130,210,.3); padding:1px 6px; color:#66ccff; font-size:9px; letter-spacing:.05em; }
+.kd  { color:rgba(0,130,190,.5); letter-spacing:.08em; }
+.sdiv { border:none; border-top:1px solid rgba(0,140,255,.1); margin:14px 0 11px; }
+</style>
+</head>
+<body>
+<div id="tt"><div class="m">J.A.R.V.I.S.</div><div class="s">NEURAL CORE</div></div>
+<div id="h1" class="hud">
+  <div class="lbl">Session</div><div class="val" id="eid">—</div>
+  <hr class="d">
+  <div class="lbl">Status</div><div><span id="dot"></span><span id="stxt" class="val">STANDBY</span></div>
+  <hr class="d">
+  <div class="lbl">Voice</div><div class="val" id="evmode">—</div>
+  <hr class="d">
+  <div class="lbl">Operations</div><div class="val" id="ecalls">0</div>
+</div>
+<div id="h2" class="hud">
+  <div class="lbl">Tool Activity</div>
+  <div id="etc" style="margin-top:4px"></div>
+</div>
+<canvas id="wc"></canvas>
+<div id="vbar"><div id="vtxt"></div></div>
+<div id="sl">NEURAL &nbsp;|&nbsp; PORT 7474 &nbsp;|&nbsp; <span style="color:rgba(0,130,180,.3)">[S] SETTINGS</span></div>
+<div id="audio-prompt" onclick="activateAudio()">◉ &nbsp; CLICK TO ACTIVATE AUDIO</div>
+
+<div id="settings">
+  <div class="stitle">Voice Level</div>
+  <button class="vbtn" id="vb1"><span class="kk">1</span> &nbsp;All Tools</button>
+  <button class="vbtn" id="vb2"><span class="kk">2</span> &nbsp;Key Events Only</button>
+  <button class="vbtn" id="vb0"><span class="kk">M</span> &nbsp;Muted</button>
+  <hr class="sdiv">
+  <div class="stitle">Context Mode</div>
+  <button class="vbtn" id="vbmax" style="margin-bottom:0"><span class="kk">X</span> &nbsp;Max Context — Tool Responses</button>
+  <hr class="sdiv">
+  <div class="stitle">Shortcuts</div>
+  <div class="krow"><span class="kk">S</span><span class="kd">Toggle settings</span></div>
+  <div class="krow"><span class="kk">1</span><span class="kd">All tools</span></div>
+  <div class="krow"><span class="kk">2</span><span class="kd">Key events only</span></div>
+  <div class="krow"><span class="kk">M</span><span class="kd">Mute / Unmute</span></div>
+  <div class="krow"><span class="kk">X</span><span class="kd">Toggle max context</span></div>
+  <div class="krow"><span class="kk">ESC</span><span class="kd">Close settings</span></div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }     from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass }     from 'three/addons/postprocessing/OutputPass.js';
+
+// ── Renderer ──────────────────────────────────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMappingExposure = 1.5;
+document.body.appendChild(renderer.domElement);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, 20, 162);
+camera.lookAt(0, 0, 0);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 2.2, 0.65, 0.0);
+composer.addPass(bloom);
+try { composer.addPass(new OutputPass()); } catch {}
+
+// ── Network group (rotates as one unit) ───────────────────────────────────────
+const net = new THREE.Group();
+scene.add(net);
+
+// ── Two fibonacci-sphere shells ───────────────────────────────────────────────
+const OUTER_N = 110, INNER_N = 42, N = OUTER_N + INNER_N;
+const OUTER_R = 68,  INNER_R = 36;
+const PHI = Math.PI * (3 - Math.sqrt(5));
+
+const base  = new Float32Array(N * 3);
+const dir   = new Float32Array(N * 3); // unit direction outward from center
+const nodeR = new Float32Array(N);     // shell radius per node
+
+function placeFib(start, count, R) {
+  for (let i = 0; i < count; i++) {
+    const y   = 1 - (i / (count - 1)) * 2;
+    const rad = Math.sqrt(Math.max(0, 1 - y * y));
+    const th  = PHI * i;
+    const idx = start + i;
+    base[idx*3]   = Math.cos(th) * rad * R;
+    base[idx*3+1] = y * R;
+    base[idx*3+2] = Math.sin(th) * rad * R;
+    nodeR[idx] = R;
+    const len = Math.hypot(base[idx*3], base[idx*3+1], base[idx*3+2]);
+    dir[idx*3] = base[idx*3]/len; dir[idx*3+1] = base[idx*3+1]/len; dir[idx*3+2] = base[idx*3+2]/len;
+  }
+}
+placeFib(0, OUTER_N, OUTER_R);
+placeFib(OUTER_N, INNER_N, INNER_R);
+
+// ── Per-node breathing params ─────────────────────────────────────────────────
+const bPh   = new Float32Array(N);   // breathing phase
+const bFq   = new Float32Array(N);   // breathing frequency
+const bBase = new Float32Array(N);   // base point size
+for (let i = 0; i < N; i++) {
+  bPh[i]   = Math.random() * Math.PI * 2;
+  bFq[i]   = 0.25 + Math.random() * 0.45;
+  bBase[i] = 1.4 + Math.random() * 2.2;
+}
+
+// ── Edges ─────────────────────────────────────────────────────────────────────
+const EDGE_DIST = 42, EDGE_K = 5;
+const edges = [];
+const conn  = new Int16Array(N);
+for (let i = 0; i < N; i++) {
+  const near = [];
+  for (let j = i + 1; j < N; j++) {
+    const dx = base[i*3]-base[j*3], dy = base[i*3+1]-base[j*3+1], dz = base[i*3+2]-base[j*3+2];
+    if (dx*dx + dy*dy + dz*dz < EDGE_DIST*EDGE_DIST) near.push([j, dx*dx+dy*dy+dz*dz]);
+  }
+  near.sort((a,b)=>a[1]-b[1]);
+  for (let k = 0; k < Math.min(EDGE_K, near.length); k++) {
+    edges.push([i, near[k][0]]); conn[i]++; conn[near[k][0]]++;
+  }
+}
+const maxConn = Math.max(...conn);
+for (let i = 0; i < N; i++) bBase[i] *= (0.6 + 0.9 * conn[i]/maxConn);
+
+// ── Frequency bin → node mapping (pre-computed) ───────────────────────────────
+// Each node maps to a frequency bin based on its Y position:
+// bottom of sphere = bass, top = treble. Sphere literally shows the EQ.
+const nodeBins = new Uint8Array(N);
+
+// ── Edge mesh ─────────────────────────────────────────────────────────────────
+const edgeBuf = new Float32Array(edges.length * 6);
+const edgeGeo = new THREE.BufferGeometry();
+edgeGeo.setAttribute('position', new THREE.BufferAttribute(edgeBuf, 3));
+net.add(new THREE.LineSegments(edgeGeo,
+  new THREE.LineBasicMaterial({ color: 0x0044bb, transparent: true, opacity: 0.55 })));
+
+// ── Node sprite texture (white core → cyan → blue) ───────────────────────────
+const ntx = document.createElement('canvas'); ntx.width = ntx.height = 64;
+const ng  = ntx.getContext('2d').createRadialGradient(32,32,0,32,32,32);
+ng.addColorStop(0,    'rgba(255,255,255,1)');
+ng.addColorStop(0.12, 'rgba(210,245,255,.95)');
+ng.addColorStop(0.3,  'rgba(0,200,255,.75)');
+ng.addColorStop(0.58, 'rgba(0,100,255,.3)');
+ng.addColorStop(1,    'rgba(0,0,0,0)');
+ntx.getContext('2d').fillStyle = ng;
+ntx.getContext('2d').fillRect(0,0,64,64);
+const nodeTex = new THREE.CanvasTexture(ntx);
+
+// ── Node points with shader ───────────────────────────────────────────────────
+const nodeBuf  = new Float32Array(N * 3);
+const sizeAttr = new Float32Array(N);
+const nodeGeo  = new THREE.BufferGeometry();
+nodeGeo.setAttribute('position', new THREE.BufferAttribute(nodeBuf,  3));
+nodeGeo.setAttribute('size',     new THREE.BufferAttribute(sizeAttr, 1));
+
+const nodeMat = new THREE.ShaderMaterial({
+  uniforms: { tex: { value: nodeTex }, speak: { value: 0.0 } },
+  vertexShader: `
+    attribute float size; uniform float speak; varying float vS;
+    void main() {
+      vS = speak;
+      vec4 mv = modelViewMatrix * vec4(position,1.0);
+      gl_PointSize = size * (300.0 / -mv.z);
+      gl_Position  = projectionMatrix * mv;
+    }`,
+  fragmentShader: `
+    uniform sampler2D tex; varying float vS;
+    void main() {
+      vec4 s = texture2D(tex, gl_PointCoord);
+      if (s.a < 0.04) discard;
+      vec3 c = mix(vec3(0.35,0.85,1.0), vec3(0.85,0.96,1.0), vS);
+      gl_FragColor = vec4(c, s.a);
+    }`,
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+});
+net.add(new THREE.Points(nodeGeo, nodeMat));
+
+// ── Central arc-reactor core ──────────────────────────────────────────────────
+const core = new THREE.Mesh(
+  new THREE.SphereGeometry(4.5, 20, 20),
+  new THREE.MeshBasicMaterial({ color: 0xffffff })
+);
+net.add(core);
+
+// ── Signal pulses ─────────────────────────────────────────────────────────────
+const MAX_SIG = 20;
+const sigBuf  = new Float32Array(MAX_SIG * 3);
+const sigGeo  = new THREE.BufferGeometry();
+sigGeo.setAttribute('position', new THREE.BufferAttribute(sigBuf, 3));
+sigGeo.setDrawRange(0, MAX_SIG);
+net.add(new THREE.Points(sigGeo, new THREE.PointsMaterial({
+  color: 0x55eeff, size: 4, map: nodeTex,
+  transparent: true, opacity: 0.95,
+  blending: THREE.AdditiveBlending, depthWrite: false,
+})));
+const signals = []; let sigTimer = 0;
+
+// ── Orbital rings (in scene, independent rotation) ────────────────────────────
+const rings = [];
+[
+  { r: 83, tube: 0.75, col: 0x0099ff, rx: Math.PI/2,      rz: 0,            spd:  0.00085 },
+  { r: 80, tube: 0.55, col: 0x00ccff, rx: Math.PI/3,      rz: Math.PI/4,    spd: -0.0012  },
+  { r: 77, tube: 0.50, col: 0x0066ee, rx: Math.PI*0.17,   rz: -Math.PI/3,   spd:  0.0016  },
+  { r: 97, tube: 0.30, col: 0x003a88, rx: 0.18,           rz: 0.55,         spd: -0.00045 },
+  { r: 62, tube: 0.90, col: 0x00ddff, rx: Math.PI/2*0.72, rz: Math.PI/2,    spd:  0.0021  },
+  { r: 88, tube: 0.35, col: 0x0055bb, rx: Math.PI*0.42,   rz: Math.PI*0.28, spd: -0.0008  },
+].forEach(({ r, tube, col, rx, rz, spd }) => {
+  const m = new THREE.Mesh(
+    new THREE.TorusGeometry(r, tube, 6, 120),
+    new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.8 })
+  );
+  m.rotation.x = rx; m.rotation.z = rz;
+  scene.add(m); rings.push({ m, spd });
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function spawnSig() {
+  if (signals.length >= MAX_SIG) return;
+  signals.push({ e: Math.floor(Math.random() * edges.length), t: 0, spd: 0.18 + Math.random() * 0.32, rev: Math.random() < .5 });
+}
+
+function updateSignals(dt, intensity) {
+  sigTimer += dt;
+  const interval = 0.38 - intensity * 0.34; // 0.38s idle → 0.04s full voice
+  if (sigTimer > interval) { spawnSig(); sigTimer = 0; }
+  for (let i = signals.length - 1; i >= 0; i--) { signals[i].t += dt * signals[i].spd; if (signals[i].t > 1) signals.splice(i, 1); }
+  for (let i = 0; i < MAX_SIG; i++) {
+    if (i < signals.length) {
+      const { e, t, rev } = signals[i];
+      const [a, b] = edges[e]; const p = rev ? 1 - t : t;
+      sigBuf[i*3]   = nodeBuf[a*3]   + (nodeBuf[b*3]   - nodeBuf[a*3])   * p;
+      sigBuf[i*3+1] = nodeBuf[a*3+1] + (nodeBuf[b*3+1] - nodeBuf[a*3+1]) * p;
+      sigBuf[i*3+2] = nodeBuf[a*3+2] + (nodeBuf[b*3+2] - nodeBuf[a*3+2]) * p;
+    } else { sigBuf[i*3] = sigBuf[i*3+1] = sigBuf[i*3+2] = 99999; }
+  }
+  sigGeo.attributes.position.needsUpdate = true;
+}
+
+function updateNodes(t, intensity) {
+  const radAmp  = 3.0 + intensity * 4.5;
+  const sizeAmp = 0.28 + intensity * 0.30;
+  for (let i = 0; i < N; i++) {
+    // Real frequency energy for this node's assigned bin (0 when not speaking)
+    const freqEnergy = (audioFreq && audioPlaying) ? audioFreq[nodeBins[i]] / 255 : 0;
+    const r = nodeR[i] + radAmp * Math.sin(t * bFq[i] + bPh[i]) + freqEnergy * 16;
+    nodeBuf[i*3]   = dir[i*3]   * r;
+    nodeBuf[i*3+1] = dir[i*3+1] * r;
+    nodeBuf[i*3+2] = dir[i*3+2] * r;
+    sizeAttr[i] = bBase[i] * (1 + sizeAmp * Math.sin(t * bFq[i] * 0.65 + bPh[i] + 1.3) + freqEnergy * 1.2);
+  }
+  nodeGeo.attributes.position.needsUpdate = true;
+  nodeGeo.attributes.size.needsUpdate = true;
+}
+
+function updateEdges() {
+  for (let i = 0; i < edges.length; i++) {
+    const [a, b] = edges[i];
+    edgeBuf[i*6]   = nodeBuf[a*3];   edgeBuf[i*6+1] = nodeBuf[a*3+1]; edgeBuf[i*6+2] = nodeBuf[a*3+2];
+    edgeBuf[i*6+3] = nodeBuf[b*3];   edgeBuf[i*6+4] = nodeBuf[b*3+1]; edgeBuf[i*6+5] = nodeBuf[b*3+2];
+  }
+  edgeGeo.attributes.position.needsUpdate = true;
+}
+
+// ── Web Audio engine ──────────────────────────────────────────────────────────
+let audioCtx = null, analyser = null;
+let audioFreq = null, audioTime = null;
+let audioPlaying = false;
+let audioRms = 0, audioBass = 0, audioMid = 0;
+let lastAudioFile = null;
+let audioReady = false;
+let audioQueue = [];   // files that arrived before user gesture
+
+const audioPromptEl = document.getElementById('audio-prompt');
+
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512;
+  analyser.smoothingTimeConstant = 0.55;
+  analyser.connect(audioCtx.destination);
+  audioFreq = new Uint8Array(analyser.frequencyBinCount);
+  audioTime = new Uint8Array(analyser.fftSize);
+  const bins = analyser.frequencyBinCount;
+  for (let i = 0; i < N; i++) {
+    const yNorm = (dir[i*3+1] + 1) / 2;
+    nodeBins[i] = Math.floor(yNorm * (bins - 1));
+  }
+}
+
+async function activateAudio() {
+  initAudio();
+  try { await audioCtx.resume(); } catch {}
+  audioReady = (audioCtx.state === 'running');
+  if (audioReady) {
+    audioPromptEl.style.display = 'none';
+    // drain anything that queued up before activation
+    const q = audioQueue.splice(0);
+    for (const f of q) await _playNow(f);
+  }
+}
+
+// Single user-gesture listener — activates audio on first interaction
+document.addEventListener('click', activateAudio, { once: true });
+document.addEventListener('keydown', activateAudio, { once: true });
+
+async function _playNow(filename) {
+  if (audioPlaying) return;   // don't stack — let current line finish
+  try {
+    const resp = await fetch(`/audio/${filename}`);
+    if (!resp.ok) return;
+    const buf = await resp.arrayBuffer();
+    const audioBuf = await audioCtx.decodeAudioData(buf);
+    const src = audioCtx.createBufferSource();
+    src.buffer = audioBuf;
+    src.connect(analyser);
+    src.start();
+    audioPlaying = true;
+    fetch('/api/speaking', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{"speaking":true}' }).catch(()=>{});
+    src.onended = () => {
+      audioPlaying = false;
+      audioRms = 0; audioBass = 0; audioMid = 0;
+      fetch('/api/speaking', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{"speaking":false}' }).catch(()=>{});
+    };
+  } catch(err) { console.warn('[JARVIS audio]', err); }
+}
+
+async function playAudioFile(filename) {
+  if (!audioCtx) initAudio();
+  if (!audioReady || audioCtx.state !== 'running') {
+    // user hasn't interacted yet — queue and show the prompt
+    if (!audioQueue.includes(filename)) audioQueue.push(filename);
+    audioPromptEl.style.display = 'block';
+    return;
+  }
+  await _playNow(filename);
+}
+
+function readAnalyser() {
+  if (!analyser || !audioPlaying) {
+    audioRms  = Math.max(0, audioRms  - 0.06);
+    audioBass = Math.max(0, audioBass - 0.06);
+    audioMid  = Math.max(0, audioMid  - 0.04);
+    return;
+  }
+  analyser.getByteTimeDomainData(audioTime);
+  analyser.getByteFrequencyData(audioFreq);
+
+  // RMS from time-domain
+  let s = 0;
+  for (let i = 0; i < audioTime.length; i++) { const v = (audioTime[i]-128)/128; s += v*v; }
+  audioRms = Math.sqrt(s / audioTime.length);
+
+  // Bass (0–8%), mid (8–40%) energy
+  const bins = audioFreq.length;
+  let b = 0, m = 0, bc = Math.floor(bins*0.08), mc = Math.floor(bins*0.40);
+  for (let i = 0;  i < bc;   i++) b += audioFreq[i];
+  for (let i = bc; i < mc;   i++) m += audioFreq[i];
+  audioBass = b / (bc  * 255);
+  audioMid  = m / ((mc - bc) * 255);
+}
+
+function drawWave() {
+  const W = wCanvas.offsetWidth || 600, H = 48;
+  wCanvas.width = W; wCanvas.height = H;
+  wctx.clearRect(0, 0, W, H);
+
+  const alpha = Math.min(1, audioRms * 6 + 0.15);
+  const grad  = wctx.createLinearGradient(0, 0, W, 0);
+  grad.addColorStop(0,    'rgba(0,180,255,0)');
+  grad.addColorStop(0.12, `rgba(0,210,255,${(0.25 + audioRms * 0.7).toFixed(2)})`);
+  grad.addColorStop(0.5,  `rgba(120,245,255,${(0.4  + audioRms * 0.6).toFixed(2)})`);
+  grad.addColorStop(0.88, `rgba(0,210,255,${(0.25 + audioRms * 0.7).toFixed(2)})`);
+  grad.addColorStop(1,    'rgba(0,180,255,0)');
+
+  if (audioPlaying && audioTime) {
+    // Real audio waveform from analyser time-domain data
+    const step = Math.max(1, Math.floor(audioTime.length / W));
+    wctx.beginPath();
+    wctx.strokeStyle = grad; wctx.lineWidth = 2.2;
+    for (let x = 0; x < W; x++) {
+      const idx = Math.floor((x / W) * audioTime.length);
+      const v   = (audioTime[idx] - 128) / 128;
+      const env = Math.sin((x / W) * Math.PI);
+      const y   = H/2 + v * 22 * env;
+      x === 0 ? wctx.moveTo(x, y) : wctx.lineTo(x, y);
+    }
+    wctx.stroke();
+    // Mirror
+    wctx.beginPath();
+    wctx.strokeStyle = grad; wctx.lineWidth = 1.0; wctx.globalAlpha = 0.3;
+    for (let x = 0; x < W; x++) {
+      const idx = Math.floor((x / W) * audioTime.length);
+      const v   = (audioTime[idx] - 128) / 128;
+      const env = Math.sin((x / W) * Math.PI);
+      const y   = H/2 - v * 22 * env;
+      x === 0 ? wctx.moveTo(x, y) : wctx.lineTo(x, y);
+    }
+    wctx.stroke(); wctx.globalAlpha = 1.0;
+  } else if (audioRms > 0.005) {
+    // Decay ring — flat line fading out
+    wctx.beginPath();
+    wctx.strokeStyle = grad; wctx.lineWidth = 1.5;
+    wctx.moveTo(0, H/2); wctx.lineTo(W, H/2);
+    wctx.stroke();
+  }
+}
+
+// ── API polling ───────────────────────────────────────────────────────────────
+let speaking = false, totalCalls = 0, sessId = '—', curTask = '', toolCts = {}, lastLine = '', fadeTimer = 0;
+let pulseFactor = 0;
+const eEid = document.getElementById('eid'), eCalls = document.getElementById('ecalls');
+const eTC  = document.getElementById('etc'),  eDot  = document.getElementById('dot');
+const eStat = document.getElementById('stxt'), eVoice = document.getElementById('vtxt');
+const wCanvas = document.getElementById('wc'), wctx = wCanvas.getContext('2d');
+
+async function poll() {
+  try {
+    const d = await (await fetch('http://localhost:7474/api/status')).json();
+    speaking = !!d.speaking; sessId = d.sessionId||'—';
+    curTask = d.currentTask||''; toolCts = d.toolCounts||{};
+    const newCalls = d.totalCalls||0;
+    if (newCalls > totalCalls) pulseFactor = 1.0;
+    totalCalls = newCalls;
+    eEid.textContent = sessId.substring(0,8).toUpperCase();
+    eCalls.textContent = totalCalls;
+    eTC.innerHTML = Object.entries(toolCts).sort((a,b)=>b[1]-a[1]).slice(0,7)
+      .map(([k,v])=>`<div class="trow"><span class="tn">${k}</span><span class="tv">${v}</span></div>`).join('');
+    if (d.lastLine && d.lastLine !== lastLine) {
+      lastLine = d.lastLine; eVoice.textContent = lastLine;
+      eVoice.classList.add('show'); wCanvas.classList.add('show'); fadeTimer = 14;
+    }
+    // Play incoming audio file in browser for real-time reactivity
+    if (d.audioFile && d.audioFile !== lastAudioFile) {
+      // Only mark as seen once audio is actually ready — if not ready it goes to queue
+      if (audioReady) lastAudioFile = d.audioFile;
+      playAudioFile(d.audioFile);
+    }
+    eDot.className = (audioPlaying || speaking) ? 'speak' : curTask ? 'active' : 'idle';
+    eStat.textContent = (audioPlaying || speaking) ? 'SPEAKING' : curTask ? 'PROCESSING' : 'STANDBY';
+  } catch {}
+}
+setInterval(poll, 150); poll();
+
+// ── Settings panel & keyboard shortcuts ──────────────────────────────────────
+let voiceLevel = 1, preMuteLevel = 1, maxCtx = false;
+const settingsEl = document.getElementById('settings');
+const eVmode     = document.getElementById('evmode');
+
+function voiceLabel(l) {
+  if (l >= 99) return 'MUTED';
+  if (l <= 1)  return 'ALL';
+  return 'KEY ONLY';
+}
+
+function updateVoiceUI(l) {
+  voiceLevel = l;
+  eVmode.textContent = voiceLabel(l);
+  document.getElementById('vb1').classList.toggle('act', l <= 1);
+  document.getElementById('vb2').classList.toggle('act', l === 2);
+  document.getElementById('vb0').classList.toggle('act', l >= 99);
+}
+
+function updateMaxCtxUI(val) {
+  maxCtx = !!val;
+  document.getElementById('vbmax').classList.toggle('act', maxCtx);
+}
+
+async function setLevel(l) {
+  try {
+    await fetch('http://localhost:7474/api/config', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ speakMinLevel: l })
+    });
+    if (l < 99) preMuteLevel = l;
+    updateVoiceUI(l);
+  } catch {}
+}
+
+async function toggleMaxCtx() {
+  try {
+    const next = !maxCtx;
+    await fetch('http://localhost:7474/api/config', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ maxContextMode: next })
+    });
+    updateMaxCtxUI(next);
+  } catch {}
+}
+
+document.getElementById('vb1').onclick   = () => setLevel(1);
+document.getElementById('vb2').onclick   = () => setLevel(2);
+document.getElementById('vb0').onclick   = () => voiceLevel >= 99 ? setLevel(preMuteLevel) : setLevel(99);
+document.getElementById('vbmax').onclick = () => toggleMaxCtx();
+
+(async () => {
+  try {
+    const cfg = await (await fetch('http://localhost:7474/api/config')).json();
+    const l = cfg.speakMinLevel ?? 1;
+    if (l < 99) preMuteLevel = l;
+    updateVoiceUI(l);
+    updateMaxCtxUI(cfg.maxContextMode ?? false);
+  } catch {}
+})();
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  switch (e.key.toLowerCase()) {
+    case 's':      settingsEl.classList.toggle('open'); break;
+    case 'escape': settingsEl.classList.remove('open'); break;
+    case '1':      setLevel(1); break;
+    case '2':      setLevel(2); break;
+    case 'm':      voiceLevel >= 99 ? setLevel(preMuteLevel) : setLevel(99); break;
+    case 'x':      toggleMaxCtx(); break;
+  }
+});
+
+// ── Mouse ─────────────────────────────────────────────────────────────────────
+let mx = 0, my = 0;
+document.addEventListener('mousemove', e => { mx=(e.clientX/window.innerWidth-.5)*2; my=(e.clientY/window.innerHeight-.5)*2; });
+
+// ── Main loop ─────────────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+let autoRot = 0, activeSmooth = 0;
+
+function loop() {
+  requestAnimationFrame(loop);
+  const dt = clock.getDelta(), t = clock.getElapsedTime();
+
+  // Pull real audio data every frame
+  readAnalyser();
+
+  // Tool activity smoothing (separate from audio)
+  activeSmooth += ((curTask ? 1 : 0) - activeSmooth) * Math.min(1, dt * 0.9);
+  pulseFactor   = Math.max(0, pulseFactor - dt * 1.8);
+
+  // Intensity: audio amplitude drives speaking state; tool activity fills idle
+  const audioIntensity = Math.min(1, audioRms * 3.0 + audioBass * 1.5);
+  const intensity = Math.max(audioIntensity, activeSmooth * 0.45 + pulseFactor * 0.45);
+  nodeMat.uniforms.speak.value = intensity;
+
+  // Bloom — base + real audio amplitude + slow oscillation
+  const bTarget = 2.1 + audioRms * 3.5 + audioBass * 0.8 + Math.sin(t * 0.11) * 0.12;
+  bloom.strength += (bTarget - bloom.strength) * Math.min(1, dt * 1.5);
+
+  updateNodes(t, intensity);
+  updateEdges();
+  updateSignals(dt, intensity);
+
+  // Network rotation: speeds up with audio
+  autoRot += 0.00028 + intensity * 0.00022;
+  net.rotation.y = autoRot;
+  net.rotation.x += (my * 0.048 - net.rotation.x) * 0.018;
+
+  // Rings: driven by actual bass + mid energy
+  const rm = 1 + audioRms * 5 + audioBass * 4 + activeSmooth * 1.2;
+  rings.forEach(({ m, spd }) => { m.rotation.y += spd * rm; });
+
+  // Core pulse — expands directly with audio amplitude
+  const cp = 1 + 0.28 * Math.sin(t * 1.05) + audioRms * 2 + audioBass * 0.8;
+  core.scale.setScalar(cp);
+
+  // Camera soft parallax
+  camera.position.x += (mx * 10 - camera.position.x) * 0.018;
+  camera.position.y += (-my * 6 + 20 - camera.position.y) * 0.018;
+  camera.lookAt(0, 0, 0);
+
+  if (fadeTimer > 0) { fadeTimer -= dt; if (fadeTimer <= 0) { eVoice.classList.remove('show'); wCanvas.classList.remove('show'); } }
+
+  drawWave();
+
+  composer.render();
+}
+loop();
+
+// ── Resize ────────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  bloom.resolution.set(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
