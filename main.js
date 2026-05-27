@@ -15,12 +15,15 @@ const NEURAL_DIR     = path.join(APP_DIR, 'Neural');
 const CONFIG_PATH    = path.join(NEURAL_DIR, 'config.json');
 const SERVER_SCRIPT  = path.join(NEURAL_DIR, 'scripts', 'neural-ui-server.js');
 const VOICE_SCRIPT   = path.join(NEURAL_DIR, 'scripts', 'jarvis-voice-server.js');
+const DAEMON_SCRIPT  = path.join(NEURAL_DIR, 'scripts', 'neural-daemon.js');
+const API_SCRIPT     = path.join(NEURAL_DIR, 'scripts', 'jarvis-api-server.js');
 const SETUP_HTML     = path.join(APP_DIR, 'setup', 'setup.html');
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let tray               = null;
 let serverProcess      = null;
 let voiceServerProcess = null;
+let apiServerProcess   = null;
 let setupWindow        = null;
 let serverOnline       = false;
 
@@ -97,6 +100,17 @@ async function startServer() {
     voiceServerProcess.on('exit', () => { voiceServerProcess = null; });
   }
 
+  // Start REST + WebSocket API server (port 7476)
+  if (!apiServerProcess) {
+    apiServerProcess = spawn(process.execPath, [API_SCRIPT], {
+      cwd: NEURAL_DIR,
+      detached: false,
+      stdio: 'ignore',
+      windowsHide: true,
+    });
+    apiServerProcess.on('exit', () => { apiServerProcess = null; });
+  }
+
   // Poll until up
   for (let i = 0; i < 20; i++) {
     await new Promise(r => setTimeout(r, 400));
@@ -116,10 +130,24 @@ function stopServer() {
     try { voiceServerProcess.kill(); } catch {}
     voiceServerProcess = null;
   }
+  if (apiServerProcess) {
+    try { apiServerProcess.kill(); } catch {}
+    apiServerProcess = null;
+  }
   if (!serverProcess) return;
   try { serverProcess.kill(); } catch {}
   serverProcess = null;
   serverOnline = false;
+
+  // Kill daemon if running
+  try {
+    const pidFile = path.join(readConfig().neural || os.homedir(), '.daemon.pid');
+    const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
+    if (!isNaN(pid)) {
+      try { process.kill(pid, 'SIGTERM'); } catch {}
+    }
+    try { fs.unlinkSync(pidFile); } catch {}
+  } catch {}
 }
 
 // ── Ollama helpers ────────────────────────────────────────────────────────────
@@ -358,6 +386,22 @@ ipcMain.handle('write-shell-alias', async () => {
 ipcMain.handle('open-file-dialog', async (_, opts) => {
   const result = await dialog.showOpenDialog(setupWindow, opts);
   return result.canceled ? null : result.filePaths[0];
+});
+
+ipcMain.handle('write-mcp-config', async (_, neuralDir) => {
+  try {
+    const mcpPath = path.join(os.homedir(), '.claude', 'mcp.json');
+    let mcp = {};
+    try { mcp = JSON.parse(fs.readFileSync(mcpPath, 'utf8')); } catch {}
+    const scriptPath = path.join(neuralDir || NEURAL_DIR, 'scripts', 'jarvis-mcp-server.js').replace(/\\/g, '/');
+    mcp.mcpServers = mcp.mcpServers || {};
+    mcp.mcpServers.jarvis = { command: 'node', args: [scriptPath] };
+    fs.mkdirSync(path.dirname(mcpPath), { recursive: true });
+    fs.writeFileSync(mcpPath, JSON.stringify(mcp, null, 2));
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
 });
 
 ipcMain.handle('launch-jarvis', async () => {

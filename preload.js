@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('jarvis', {
   saveConfig:      (u)     => ipcRenderer.invoke('save-config', u),
   writeHooks:      ()      => ipcRenderer.invoke('write-hooks'),
   writeShellAlias: ()      => ipcRenderer.invoke('write-shell-alias'),
+  writeMcpConfig:  (d)     => ipcRenderer.invoke('write-mcp-config', d),
   openFileDialog:  (o)     => ipcRenderer.invoke('open-file-dialog', o),
   launchJarvis:    ()      => ipcRenderer.invoke('launch-jarvis'),
 });

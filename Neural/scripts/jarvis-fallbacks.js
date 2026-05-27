@@ -11,6 +11,9 @@ const FALLBACKS = {
     "Online, sir. How may I assist you today?",
     "Good to have you back, sir. Ready when you are.",
     "All systems nominal. Standing by for your directive, sir.",
+    "Neural core online. I see we're on the {gitBranch} branch, sir.",
+    "Good to have you back. The workspace shows {gitChanged} files modified.",
+    "Initialised. {projectType} project detected. Standing by.",
   ],
   TASK_COMPLETE: [
     "Task complete. No errors detected.",
@@ -23,6 +26,10 @@ const FALLBACKS = {
     "That should do it nicely, sir.",
     "As always, sir, a pleasure.",
     "Mission accomplished. Shall I prepare a summary?",
+    "Done with {filename}. Clean exit.",
+    "That was the hard part, sir. The rest should follow.",
+    "Committed. {filename} is as you intended it.",
+    "The {gitBranch} branch is looking healthy, sir.",
   ],
   ERROR: [
     "We've encountered an error, sir. Analyzing.",
@@ -33,6 +40,10 @@ const FALLBACKS = {
     "I'm afraid an error has surfaced, sir. Flagging for your attention.",
     "That didn't go as planned. Shall we try again?",
     "Error noted. The cause appears to be in the last operation.",
+    "I've seen this pattern before — {errorType} usually means the problem is upstream.",
+    "{consecutiveErrors} errors in sequence. The assumption may be wrong, sir.",
+    "Error in {filename}. The last change may have introduced it.",
+    "Failure. I'd suggest reverting {filename} and taking a different angle.",
   ],
   LONG_TASK: [
     "Still working, sir. This one's taking a moment.",
@@ -51,6 +62,9 @@ const FALLBACKS = {
     "Still here, sir. Awaiting your next move.",
     "All systems are nominal. Ready when you are, sir.",
     "Idle and waiting. The workspace is yours.",
+    "Still here, sir. {sessionOps} operations completed so far.",
+    "Awaiting your directive. {filename} is loaded and ready.",
+    "Quiet moment. {durationMin} minutes into the session, sir.",
   ],
   MILESTONE: [
     "That one took some doing. Well executed, sir.",
@@ -61,6 +75,9 @@ const FALLBACKS = {
     "We've reached a milestone, sir. The architecture is taking shape.",
     "That was the critical piece. The rest should follow.",
     "Excellent work, sir. This session has been productive.",
+    "{sessionOps} operations this session. We're making real progress, sir.",
+    "That was the turning point. {filename} is now correct.",
+    "Milestone reached on {gitBranch}. The architecture is holding.",
   ],
   REPEATED_ERROR: [
     "Sir, this is the third time we've encountered this error. Shall I suggest an alternative approach?",
@@ -68,6 +85,9 @@ const FALLBACKS = {
     "Three identical errors. This is not a coincidence, sir.",
     "We appear to be caught in a loop, sir. A fresh approach may be warranted.",
     "Repeated failure detected. I suspect the underlying assumption is incorrect.",
+    "Sir, {consecutiveErrors} identical failures. The root cause is elsewhere.",
+    "Same error, {consecutiveErrors} times. {filename} is not the problem.",
+    "This pattern suggests a dependency issue, sir, not {filename} itself.",
   ],
   LONG_SESSION: [
     "We've been at this for half an hour, sir. Shall I summarize our progress?",
@@ -80,6 +100,8 @@ const FALLBACKS = {
     "New directory. I'll adjust my awareness accordingly.",
     "We haven't worked in this area before. Proceeding carefully.",
     "Uncharted code, sir. Shall I take note of the structure?",
+    "First time in this part of the codebase, sir. Adjusting awareness.",
+    "Uncharted territory on {gitBranch}. I'll note the structure.",
   ],
 };
 
@@ -89,7 +111,15 @@ function selectFallback(category, context) {
   const line = lines[Math.floor(Math.random() * lines.length)];
   return line
     .replace('{toolCallCount}', context.callCount || 0)
-    .replace('{taskName}', context.activeTask || 'current task');
+    .replace('{taskName}', context.activeTask || 'current task')
+    .replace('{filename}', context.focusFile || context.lastFile || 'the file')
+    .replace('{errorType}', context.lastErrorType || 'the error')
+    .replace('{durationMin}', context.durationMin || 0)
+    .replace('{consecutiveErrors}', context.consecutiveErrors || context.errorStreak || 0)
+    .replace('{gitBranch}', context.gitBranch || 'main')
+    .replace('{sessionOps}', context.sessionOps || context.callCount || 0)
+    .replace('{gitChanged}', context.gitChanged || 0)
+    .replace('{projectType}', context.projectType || 'code');
 }
 
 module.exports = { FALLBACKS, selectFallback };

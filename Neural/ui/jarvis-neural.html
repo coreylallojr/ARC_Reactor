@@ -7,7 +7,8 @@
 {
   "imports": {
     "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+    "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/",
+    "d3": "https://cdn.jsdelivr.net/npm/d3@7/+esm"
   }
 }
 </script>
@@ -152,9 +153,120 @@ hr.d { border:none; border-top:1px solid rgba(0,150,255,.12); margin:6px 0; }
   0%   { transform:rotate(0deg); }
   100% { transform:rotate(360deg); }
 }
+
+/* ── Tab bar ─────────────────────────────────────────────────────────────────── */
+#tab-bar {
+  position:fixed; top:0; left:50%; transform:translateX(-50%);
+  display:flex; gap:2px; z-index:50; padding:6px 0 0;
+  background:linear-gradient(rgba(0,4,14,.95) 0%, transparent 100%);
+}
+.tab {
+  background:transparent; border:1px solid rgba(0,120,200,.18);
+  color:rgba(0,150,220,.45); font-family:'Courier New',monospace;
+  font-size:9px; letter-spacing:.3em; text-transform:uppercase;
+  padding:5px 16px; cursor:pointer; transition:all .18s;
+}
+.tab:hover { border-color:rgba(0,180,255,.4); color:rgba(0,210,255,.75); }
+.tab.active {
+  border-color:rgba(0,200,255,.6); color:#aaeeff;
+  background:rgba(0,30,70,.55); box-shadow:0 0 12px rgba(0,160,255,.15) inset;
+}
+
+/* ── Non-neural tab panels ──────────────────────────────────────────────────── */
+.tab-panel {
+  position:fixed; inset:0; z-index:20;
+  background:#00040e; display:none; overflow:hidden;
+  font-family:'Courier New',monospace; color:#44aadd;
+}
+.tab-panel.visible { display:flex; flex-direction:column; }
+.panel-header {
+  padding:44px 28px 14px; border-bottom:1px solid rgba(0,120,200,.15);
+  font-size:9px; letter-spacing:.4em; color:rgba(0,160,220,.45); flex-shrink:0;
+  display:flex; align-items:center; gap:20px;
+}
+.panel-header span { color:rgba(0,190,255,.6); }
+.panel-body { flex:1; overflow:auto; padding:20px 28px; scrollbar-width:thin; scrollbar-color:rgba(0,100,180,.2) transparent; }
+.panel-body::-webkit-scrollbar { width:4px; }
+.panel-body::-webkit-scrollbar-thumb { background:rgba(0,100,180,.25); border-radius:2px; }
+
+/* Graph panel */
+#graph-svg { width:100%; height:100%; }
+.graph-node { cursor:pointer; }
+.graph-node circle { transition:r .2s; }
+.graph-node:hover circle { r:9; }
+.graph-label { font-family:'Courier New',monospace; font-size:9px; fill:rgba(0,180,255,.5); pointer-events:none; }
+.graph-link { stroke:rgba(0,80,180,.3); stroke-width:1; }
+.graph-link.active { stroke:rgba(0,200,255,.6); }
+
+/* Skills panel */
+.skill-list { display:flex; flex-direction:column; gap:8px; max-width:820px; }
+.skill-card {
+  border:1px solid rgba(0,100,180,.2); padding:12px 16px;
+  background:rgba(0,10,28,.6); display:flex; align-items:flex-start; gap:14px;
+}
+.skill-card:hover { border-color:rgba(0,160,255,.35); }
+.skill-name { color:#66d8ff; font-size:12px; letter-spacing:.12em; flex:1; }
+.skill-meta { color:rgba(0,130,190,.5); font-size:9px; letter-spacing:.1em; margin-top:4px; }
+.skill-triggers { color:rgba(0,160,210,.4); font-size:9px; margin-top:3px; }
+.skill-usage { color:rgba(0,200,255,.45); font-size:10px; text-align:right; min-width:48px; }
+.skill-source { font-size:8px; letter-spacing:.18em; text-transform:uppercase; padding:2px 6px; border:1px solid; }
+.skill-source.builtin  { color:rgba(0,180,255,.5); border-color:rgba(0,140,200,.2); }
+.skill-source.learned  { color:rgba(0,255,180,.5); border-color:rgba(0,200,140,.2); }
+.skill-source.explicit { color:rgba(0,255,180,.5); border-color:rgba(0,200,140,.2); }
+.skill-source.manual   { color:rgba(0,255,180,.5); border-color:rgba(0,200,140,.2); }
+.skill-source.proposed { color:rgba(255,200,50,.5); border-color:rgba(220,170,40,.2); }
+.skill-del { background:none; border:1px solid rgba(255,60,60,.2); color:rgba(255,80,80,.5); font-family:'Courier New',monospace; font-size:8px; padding:2px 8px; cursor:pointer; letter-spacing:.1em; flex-shrink:0; }
+.skill-del:hover { border-color:rgba(255,80,80,.6); color:#ff6060; }
+.skill-propose-card {
+  border:1px solid rgba(255,200,50,.2); padding:12px 16px; background:rgba(30,18,0,.5);
+  margin-bottom:6px;
+}
+.propose-title { color:#ffd060; font-size:10px; letter-spacing:.18em; }
+.propose-btns { margin-top:8px; display:flex; gap:8px; }
+.btn-sm {
+  background:rgba(0,30,70,.5); border:1px solid rgba(0,120,200,.25); color:#66ccff;
+  font-family:'Courier New',monospace; font-size:9px; letter-spacing:.12em;
+  padding:4px 12px; cursor:pointer; text-transform:uppercase; transition:all .15s;
+}
+.btn-sm:hover { background:rgba(0,55,110,.8); border-color:rgba(0,200,255,.5); color:#aaeeff; }
+#skill-create-form { max-width:520px; margin-top:16px; display:none; flex-direction:column; gap:8px; }
+#skill-create-form.open { display:flex; }
+.form-row { display:flex; flex-direction:column; gap:3px; }
+.form-label { font-size:8px; letter-spacing:.25em; color:rgba(0,140,200,.5); text-transform:uppercase; }
+.form-input {
+  background:rgba(0,12,30,.7); border:1px solid rgba(0,100,180,.25); color:#aaeeff;
+  font-family:'Courier New',monospace; font-size:11px; padding:6px 10px; outline:none;
+}
+.form-input:focus { border-color:rgba(0,200,255,.5); }
+
+/* Memory panel */
+.memory-cols { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; height:100%; }
+.mem-col { display:flex; flex-direction:column; gap:10px; overflow:auto; }
+.mem-col-title { font-size:8px; letter-spacing:.3em; color:rgba(0,160,220,.4); text-transform:uppercase; padding-bottom:8px; border-bottom:1px solid rgba(0,100,160,.12); flex-shrink:0; }
+.mem-entry {
+  border:1px solid rgba(0,80,140,.18); padding:9px 12px; background:rgba(0,8,22,.5);
+  font-size:10px; line-height:1.5; color:rgba(180,230,255,.7);
+}
+.mem-entry:hover { border-color:rgba(0,160,255,.3); }
+.mem-time { font-size:8px; color:rgba(0,100,160,.4); margin-bottom:4px; letter-spacing:.1em; }
+.mem-role { font-size:8px; letter-spacing:.2em; text-transform:uppercase; margin-bottom:3px; }
+.mem-role.working { color:rgba(0,200,255,.5); }
+.mem-role.episodic { color:rgba(0,255,180,.4); }
+.mem-role.semantic { color:rgba(200,180,255,.4); }
+#memory-search-row { display:flex; gap:8px; margin-bottom:14px; max-width:500px; }
+#memory-search { flex:1; background:rgba(0,10,28,.7); border:1px solid rgba(0,100,180,.25); color:#aaeeff; font-family:'Courier New',monospace; font-size:11px; padding:6px 10px; outline:none; }
+#memory-search:focus { border-color:rgba(0,200,255,.5); }
 </style>
 </head>
 <body>
+<!-- Tab bar (always visible) -->
+<div id="tab-bar">
+  <button id="tab-neural"  class="tab active" onclick="switchTab('neural')">NEURAL</button>
+  <button id="tab-graph"   class="tab"         onclick="switchTab('graph')">GRAPH</button>
+  <button id="tab-skills"  class="tab"         onclick="switchTab('skills')">SKILLS</button>
+  <button id="tab-memory"  class="tab"         onclick="switchTab('memory')">MEMORY</button>
+</div>
+
 <div id="tt"><div class="m">J.A.R.V.I.S.</div><div class="s">NEURAL CORE</div></div>
 <div id="h1" class="hud">
   <div class="lbl">Session</div><div class="val" id="eid">—</div>
@@ -219,12 +331,82 @@ hr.d { border:none; border-top:1px solid rgba(0,150,255,.12); margin:6px 0; }
   </div>
 </div>
 
+<!-- ── Graph Panel ──────────────────────────────────────────────────────────── -->
+<div id="panel-graph" class="tab-panel">
+  <div class="panel-header">
+    KNOWLEDGE GRAPH &nbsp;·&nbsp; <span id="graph-stats">0 nodes · 0 edges</span>
+    <button class="btn-sm" style="margin-left:auto" onclick="loadGraph()">REFRESH</button>
+  </div>
+  <div class="panel-body" style="padding:0; position:relative;">
+    <svg id="graph-svg"></svg>
+  </div>
+</div>
+
+<!-- ── Skills Panel ─────────────────────────────────────────────────────────── -->
+<div id="panel-skills" class="tab-panel">
+  <div class="panel-header">
+    SKILL REGISTRY &nbsp;·&nbsp; <span id="skills-count">0 skills</span>
+    <button class="btn-sm" style="margin-left:auto" onclick="toggleSkillForm()">+ NEW SKILL</button>
+  </div>
+  <div class="panel-body">
+    <div id="skill-create-form">
+      <div class="form-row">
+        <div class="form-label">Skill Name</div>
+        <input class="form-input" id="skill-form-name" type="text" placeholder="e.g. refactor" spellcheck="false">
+      </div>
+      <div class="form-row">
+        <div class="form-label">Trigger Phrases (comma-separated)</div>
+        <input class="form-input" id="skill-form-triggers" type="text" placeholder="e.g. refactor this, clean up, extract function" spellcheck="false">
+      </div>
+      <div class="form-row">
+        <div class="form-label">Description</div>
+        <input class="form-input" id="skill-form-desc" type="text" placeholder="What this skill does" spellcheck="false">
+      </div>
+      <div style="display:flex; gap:8px; margin-top:4px;">
+        <button class="btn-sm" onclick="createSkill()">CREATE</button>
+        <button class="btn-sm" onclick="toggleSkillForm()">CANCEL</button>
+      </div>
+    </div>
+    <div id="proposals-list"></div>
+    <div id="skill-list" class="skill-list"></div>
+  </div>
+</div>
+
+<!-- ── Memory Panel ─────────────────────────────────────────────────────────── -->
+<div id="panel-memory" class="tab-panel">
+  <div class="panel-header">
+    MEMORY LAYERS &nbsp;·&nbsp; <span id="memory-stats">working · episodic · semantic</span>
+    <button class="btn-sm" style="margin-left:auto" onclick="searchMemory()">SEARCH</button>
+  </div>
+  <div class="panel-body">
+    <div id="memory-search-row">
+      <input id="memory-search" type="text" placeholder="Search memory..." spellcheck="false">
+      <button class="btn-sm" onclick="searchMemory()">GO</button>
+    </div>
+    <div class="memory-cols">
+      <div>
+        <div class="mem-col-title">Working Memory</div>
+        <div id="mem-working" class="mem-col"></div>
+      </div>
+      <div>
+        <div class="mem-col-title">Episodic Memory</div>
+        <div id="mem-episodic" class="mem-col"></div>
+      </div>
+      <div>
+        <div class="mem-col-title">Semantic Memory</div>
+        <div id="mem-semantic" class="mem-col"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass }     from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass }     from 'three/addons/postprocessing/OutputPass.js';
+import * as d3 from 'd3';
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -247,6 +429,25 @@ try { composer.addPass(new OutputPass()); } catch {}
 
 const net = new THREE.Group();
 scene.add(net);
+
+// ── Activity-reactive node system ─────────────────────────────────────────────
+// Each activated node has { idx, timer, maxTimer, bright } — timer counts down
+const activeNodeFlashes = [];    // active flashes this frame
+const nodeFlashBright  = new Float32Array(N); // 0=normal, >0=brightened
+let prevTotalCalls = 0;
+
+// ── Skill burst state ─────────────────────────────────────────────────────────
+// When a skill activates: nodes converge to a point then explode outward
+let burstActive = false;
+let burstTimer  = 0;
+const BURST_DURATION = 1.2;
+const burstTarget    = new THREE.Vector3(0, 0, 0);
+const burstNodeBase  = new Float32Array(N * 3); // original positions at burst start
+
+// ── Wake animation ─────────────────────────────────────────────────────────────
+let wakeTimer = 0;
+const WAKE_DURATION = 2.0;
+net.scale.setScalar(0.01);  // start tiny
 
 // ── Fibonacci sphere ──────────────────────────────────────────────────────────
 const OUTER_N = 110, INNER_N = 42, N = OUTER_N + INNER_N;
@@ -892,9 +1093,13 @@ function updateNodes(t, intensity) {
     nodeBuf[i*3+1] = dir[i*3+1] * r;
     nodeBuf[i*3+2] = dir[i*3+2] * r;
 
-    sizeAttr[i] = bBase[i] * (1 + sizeAmp * Math.sin(t * bFq[i] * 0.65 + bPh[i] + 1.3) + freqEnergy * 1.2);
+    // Activity-reactive flash boost
+    const flashBoost = nodeFlashBright[i] * 2.5;
+    sizeAttr[i] = bBase[i] * (1 + sizeAmp * Math.sin(t * bFq[i] * 0.65 + bPh[i] + 1.3) + freqEnergy * 1.2 + flashBoost);
   }
-  nodeGeo.attributes.position.needsUpdate = true;
+  if (!burstActive) {
+    nodeGeo.attributes.position.needsUpdate = true;
+  }
   nodeGeo.attributes.size.needsUpdate = true;
 }
 
@@ -977,6 +1182,67 @@ function loop() {
   const dt = clock.getDelta(), t = clock.getElapsedTime();
 
   readAnalyser();
+
+  // ── Wake animation (sphere materializes over 2s) ──────────────────────────
+  if (wakeTimer < WAKE_DURATION) {
+    wakeTimer += dt;
+    const p = Math.min(1, wakeTimer / WAKE_DURATION);
+    // Ease out cubic
+    const ease = 1 - Math.pow(1 - p, 3);
+    net.scale.setScalar(ease);
+    // Ring ripple effect: expand then settle
+    rings.forEach(({ m }, i) => {
+      const phase = Math.max(0, p - i * 0.08);
+      m.scale.setScalar(0.1 + phase * 0.9);
+    });
+  }
+
+  // ── Activity-reactive nodes: fire on new tool call ────────────────────────
+  if (totalCalls > prevTotalCalls) {
+    prevTotalCalls = totalCalls;
+    // Activate 5–8 random nodes
+    const count = 5 + Math.floor(Math.random() * 4);
+    for (let k = 0; k < count; k++) {
+      const idx = Math.floor(Math.random() * N);
+      activeNodeFlashes.push({ idx, timer: 1.0, maxTimer: 1.0 });
+    }
+  }
+  // Decay node flashes
+  for (let i = activeNodeFlashes.length - 1; i >= 0; i--) {
+    activeNodeFlashes[i].timer -= dt * 1.5;
+    nodeFlashBright[activeNodeFlashes[i].idx] = Math.max(0, activeNodeFlashes[i].timer);
+    if (activeNodeFlashes[i].timer <= 0) {
+      nodeFlashBright[activeNodeFlashes[i].idx] = 0;
+      activeNodeFlashes.splice(i, 1);
+    }
+  }
+
+  // ── Skill burst animation ─────────────────────────────────────────────────
+  if (burstActive) {
+    burstTimer += dt;
+    const p = burstTimer / BURST_DURATION;
+    if (p < 0.5) {
+      // Converge toward center
+      const t2 = p / 0.5;
+      for (let i = 0; i < N; i++) {
+        const ease = t2 * t2;
+        nodeBuf[i*3]   = burstNodeBase[i*3]   * (1 - ease) + burstTarget.x * ease;
+        nodeBuf[i*3+1] = burstNodeBase[i*3+1] * (1 - ease) + burstTarget.y * ease;
+        nodeBuf[i*3+2] = burstNodeBase[i*3+2] * (1 - ease) + burstTarget.z * ease;
+      }
+    } else {
+      // Explode outward + settle
+      const t2 = (p - 0.5) / 0.5;
+      const overshoot = 1 + Math.max(0, 1 - t2) * 0.35;
+      for (let i = 0; i < N; i++) {
+        nodeBuf[i*3]   = burstNodeBase[i*3]   * t2 * overshoot;
+        nodeBuf[i*3+1] = burstNodeBase[i*3+1] * t2 * overshoot;
+        nodeBuf[i*3+2] = burstNodeBase[i*3+2] * t2 * overshoot;
+      }
+    }
+    if (burstTimer >= BURST_DURATION) { burstActive = false; burstTimer = 0; }
+    nodeGeo.attributes.position.needsUpdate = true;
+  }
 
   // Smooth state transitions
   activeSmooth += ((curTask ? 1 : 0) - activeSmooth) * Math.min(1, dt * 0.9);
@@ -1067,6 +1333,320 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   composer.setSize(window.innerWidth, window.innerHeight);
   bloom.resolution.set(window.innerWidth, window.innerHeight);
+});
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+const NEURAL_ELS = ['#h1','#h2','#session-hud','#tt','#vbar','#sl','#audio-prompt',
+                    '#live-transcript','#voice-btn','#settings'];
+let currentTab = 'neural';
+
+function switchTab(name) {
+  currentTab = name;
+  // Tab buttons
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name)?.classList.add('active');
+  // Neural-only HUD elements
+  const showNeural = (name === 'neural');
+  NEURAL_ELS.forEach(sel => {
+    const el = document.querySelector(sel);
+    if (el) el.style.display = showNeural ? '' : 'none';
+  });
+  // Three.js canvas
+  renderer.domElement.style.display = showNeural ? 'block' : 'none';
+  // Tab panels
+  ['graph','skills','memory'].forEach(t => {
+    const p = document.getElementById('panel-' + t);
+    if (p) p.classList.toggle('visible', t === name);
+  });
+  // Load data for the newly visible tab
+  if (name === 'graph')   loadGraph();
+  if (name === 'skills')  loadSkills();
+  if (name === 'memory')  loadMemory();
+}
+window.switchTab = switchTab;
+
+// Expose triggerSkillBurst so daemon/voice events can fire it
+window.triggerSkillBurst = function() {
+  if (burstActive) return;
+  burstNodeBase.set(nodeBuf);
+  burstActive = true;
+  burstTimer  = 0;
+};
+
+// ── Graph tab (D3 force-directed) ─────────────────────────────────────────────
+const API = 'http://localhost:7476';
+let graphSim = null;
+
+async function loadGraph() {
+  try {
+    const data = await (await fetch(`${API}/v1/graph`)).json();
+    document.getElementById('graph-stats').textContent =
+      `${data.nodes.length} nodes · ${data.links.length} edges`;
+    renderGraph(data);
+  } catch {
+    document.getElementById('graph-stats').textContent = 'API unavailable';
+  }
+}
+window.loadGraph = loadGraph;
+
+function renderGraph(data) {
+  const svg = document.getElementById('graph-svg');
+  const W   = svg.clientWidth  || window.innerWidth;
+  const H   = svg.clientHeight || window.innerHeight - 60;
+
+  // Clear previous
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const svgEl = d3.select(svg).attr('width', W).attr('height', H);
+
+  // Colors by node type
+  const typeColor = {
+    file:    '#0099ff', function:'#00ccff', error:   '#ff4444',
+    skill:   '#00ffcc', concept: '#cc88ff', session: '#88ddff',
+  };
+
+  const sim = d3.forceSimulation(data.nodes)
+    .force('link',    d3.forceLink(data.links).id(d => d.id).distance(80).strength(0.4))
+    .force('charge',  d3.forceManyBody().strength(-220))
+    .force('center',  d3.forceCenter(W / 2, H / 2))
+    .force('collide', d3.forceCollide(16));
+  graphSim = sim;
+
+  // Arrow marker
+  svgEl.append('defs').append('marker')
+    .attr('id','arrow').attr('markerWidth',8).attr('markerHeight',8)
+    .attr('refX',12).attr('refY',3).attr('orient','auto')
+    .append('path').attr('d','M0,0 L0,6 L8,3 z')
+    .attr('fill','rgba(0,100,200,.35)');
+
+  const link = svgEl.append('g').selectAll('line').data(data.links).join('line')
+    .attr('class', d => 'graph-link' + (d.active ? ' active' : ''))
+    .attr('marker-end', 'url(#arrow)');
+
+  const node = svgEl.append('g').selectAll('g').data(data.nodes).join('g')
+    .attr('class','graph-node')
+    .call(d3.drag()
+      .on('start', (event, d) => { if (!event.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('drag',  (event, d) => { d.fx = event.x; d.fy = event.y; })
+      .on('end',   (event, d) => { if (!event.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }))
+    .on('click', (event, d) => {
+      // Speak the node description via JARVIS
+      const label = d.label || d.id;
+      const desc  = d.description || `${d.type || 'node'}: ${label}`;
+      fetch(`${API}/v1/speak`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text: desc }) }).catch(()=>{});
+    });
+
+  const r = d => d.type === 'skill' ? 10 : d.type === 'error' ? 8 : 6;
+  node.append('circle')
+    .attr('r', r)
+    .attr('fill', d => typeColor[d.type] || '#0099ff')
+    .attr('fill-opacity', 0.7)
+    .attr('stroke', d => typeColor[d.type] || '#0099ff')
+    .attr('stroke-width', d => d.type === 'skill' ? 2 : 1)
+    .attr('stroke-opacity', 0.9);
+
+  node.append('text').attr('class','graph-label').attr('x', r => r + 5).attr('dy','0.35em')
+    .text(d => (d.label || d.id || '').slice(0, 24));
+
+  // Glow animation for skill nodes
+  node.filter(d => d.type === 'skill').append('circle')
+    .attr('r', 14).attr('fill','none').attr('stroke','#00ffcc')
+    .attr('stroke-width',1.5).attr('stroke-opacity',0.4)
+    .style('animation','thinking-sweep 2s linear infinite');
+
+  sim.on('tick', () => {
+    link.attr('x1', d=>d.source.x).attr('y1', d=>d.source.y)
+        .attr('x2', d=>d.target.x).attr('y2', d=>d.target.y);
+    node.attr('transform', d => `translate(${d.x},${d.y})`);
+  });
+}
+
+// ── Skills tab ─────────────────────────────────────────────────────────────────
+async function loadSkills() {
+  try {
+    const { skills } = await (await fetch(`${API}/v1/skills`)).json();
+    renderSkills(skills || []);
+  } catch {
+    document.getElementById('skill-list').innerHTML =
+      '<div style="color:rgba(0,140,200,.4);font-size:10px;padding:8px;">API unavailable — start JARVIS first.</div>';
+  }
+}
+window.loadSkills = loadSkills;
+
+function renderSkills(skills) {
+  document.getElementById('skills-count').textContent = `${skills.length} skill${skills.length !== 1 ? 's' : ''}`;
+  const list = document.getElementById('skill-list');
+  const html = skills.map(s => `
+    <div class="skill-card">
+      <div style="flex:1">
+        <div class="skill-name">${escapeHtml(s.name || s.id)}</div>
+        <div class="skill-meta">${escapeHtml(s.description || '')}</div>
+        <div class="skill-triggers">triggers: ${(s.triggerPhrases || []).join(' · ')}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="skill-source ${s.source || 'builtin'}">${s.source || 'builtin'}</span>
+        <span class="skill-usage">${s.usageCount || 0}×</span>
+        ${s.source !== 'builtin' ? `<button class="skill-del" onclick="deleteSkill('${escapeHtml(s.id)}')">DELETE</button>` : ''}
+      </div>
+    </div>`).join('');
+  list.innerHTML = html || '<div style="color:rgba(0,140,200,.4);font-size:10px;padding:8px;">No skills yet.</div>';
+}
+
+function toggleSkillForm() {
+  const form = document.getElementById('skill-create-form');
+  form.classList.toggle('open');
+}
+window.toggleSkillForm = toggleSkillForm;
+
+async function createSkill() {
+  const name     = document.getElementById('skill-form-name').value.trim();
+  const triggers = document.getElementById('skill-form-triggers').value.trim();
+  const desc     = document.getElementById('skill-form-desc').value.trim();
+  if (!name) return;
+  try {
+    const body = {
+      id: name.toLowerCase().replace(/\s+/g,'-'),
+      name, description: desc, source: 'manual',
+      triggerPhrases: triggers.split(',').map(s => s.trim()).filter(Boolean),
+    };
+    await fetch(`${API}/v1/skills`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    document.getElementById('skill-form-name').value = '';
+    document.getElementById('skill-form-triggers').value = '';
+    document.getElementById('skill-form-desc').value = '';
+    toggleSkillForm();
+    loadSkills();
+  } catch {}
+}
+window.createSkill = createSkill;
+
+async function deleteSkill(id) {
+  try {
+    await fetch(`${API}/v1/skills/${encodeURIComponent(id)}`, { method:'DELETE' });
+    loadSkills();
+  } catch {}
+}
+window.deleteSkill = deleteSkill;
+
+// ── Memory tab ────────────────────────────────────────────────────────────────
+async function loadMemory() {
+  const workingEl  = document.getElementById('mem-working');
+  const episodicEl = document.getElementById('mem-episodic');
+  const semanticEl = document.getElementById('mem-semantic');
+  workingEl.innerHTML = ''; episodicEl.innerHTML = ''; semanticEl.innerHTML = '';
+
+  // Working memory: current session state from neural server
+  try {
+    const state = await (await fetch('http://localhost:7474/api/status')).json();
+    const entries = [
+      { label:'Tool calls', val: state.totalCalls || 0 },
+      { label:'Session',    val: (state.sessionId || '—').slice(0,8).toUpperCase() },
+      { label:'Focus file', val: state.currentTask || 'none' },
+    ];
+    workingEl.innerHTML = entries.map(e =>
+      `<div class="mem-entry"><div class="mem-role working">WORKING</div>${escapeHtml(e.label)}: <span style="color:#aaeeff">${escapeHtml(String(e.val))}</span></div>`
+    ).join('');
+  } catch { workingEl.innerHTML = '<div class="mem-entry" style="color:rgba(0,120,160,.4)">unavailable</div>'; }
+
+  // Episodic: conversation history
+  try {
+    const hist = await (await fetch('http://localhost:7474/api/conversation/history')).json();
+    if (hist.length === 0) {
+      episodicEl.innerHTML = '<div class="mem-entry" style="color:rgba(0,120,160,.4)">No turns yet</div>';
+    } else {
+      episodicEl.innerHTML = hist.slice(-20).map(m => {
+        const time = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+        const roleClass = m.role === 'user' ? '' : 'episodic';
+        return `<div class="mem-entry"><div class="mem-time">${time}</div><div class="mem-role ${roleClass}">${m.role.toUpperCase()}</div>${escapeHtml(m.content)}</div>`;
+      }).join('');
+    }
+  } catch { episodicEl.innerHTML = '<div class="mem-entry" style="color:rgba(0,120,160,.4)">unavailable</div>'; }
+
+  // Semantic: RAG recall from vector/graph (via API if available)
+  try {
+    const { results: recall = [] } = await (await fetch(`${API}/v1/recall`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ query: 'project architecture', topK: 8 }),
+    })).json();
+    if (recall.length === 0) {
+      semanticEl.innerHTML = '<div class="mem-entry" style="color:rgba(0,120,160,.4)">No semantic memory yet — edit files to index them</div>';
+    } else {
+      semanticEl.innerHTML = recall.map(r =>
+        `<div class="mem-entry"><div class="mem-role semantic">SEMANTIC</div><span style="color:rgba(0,160,210,.5);font-size:9px">${escapeHtml(r.sourcePath || r.source_path || '')}</span><br>${escapeHtml((r.content || '').slice(0,120))}${(r.content||'').length > 120 ? '…' : ''}</div>`
+      ).join('');
+    }
+  } catch { semanticEl.innerHTML = '<div class="mem-entry" style="color:rgba(0,120,160,.4)">Vector DB unavailable</div>'; }
+}
+window.loadMemory = loadMemory;
+
+async function searchMemory() {
+  const query = document.getElementById('memory-search').value.trim();
+  if (!query) { loadMemory(); return; }
+  const semanticEl = document.getElementById('mem-semantic');
+  semanticEl.innerHTML = '<div class="mem-entry" style="color:rgba(0,140,200,.4)">Searching…</div>';
+  try {
+    const { results: recall = [] } = await (await fetch(`${API}/v1/recall`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ query, topK: 10 }),
+    })).json();
+    semanticEl.innerHTML = recall.length
+      ? recall.map(r => `<div class="mem-entry"><div class="mem-role semantic">MATCH</div><span style="color:rgba(0,160,210,.5);font-size:9px">${escapeHtml(r.sourcePath || r.source_path || '')}</span><br>${escapeHtml((r.content || '').slice(0,160))}${(r.content||'').length > 160 ? '…' : ''}</div>`).join('')
+      : '<div class="mem-entry" style="color:rgba(0,140,200,.4)">No results</div>';
+  } catch { semanticEl.innerHTML = '<div class="mem-entry" style="color:rgba(0,120,160,.4)">API unavailable</div>'; }
+}
+window.searchMemory = searchMemory;
+
+document.getElementById('memory-search').addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchMemory();
+});
+
+// ── Wire skill proposal events from API WebSocket ────────────────────────────
+function connectApiEvents() {
+  try {
+    const ws = new WebSocket('ws://localhost:7476/v1/events');
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'skill_activated')  window.triggerSkillBurst();
+        if (msg.type === 'skill_proposed' && currentTab === 'skills') {
+          // Show proposal card at top of skills list
+          const proposals = document.getElementById('proposals-list');
+          const el = document.createElement('div');
+          el.className = 'skill-propose-card';
+          el.innerHTML = `<div class="propose-title">⚡ PATTERN DETECTED: ${escapeHtml(msg.pattern)}</div>
+            <div class="skill-meta" style="margin-top:4px">Seen in ${msg.sessions} sessions</div>
+            <div class="propose-btns">
+              <button class="btn-sm" onclick="nameProposedSkill('${escapeHtml(msg.pattern)}', this.closest('.skill-propose-card'))">NAME IT</button>
+              <button class="btn-sm" onclick="this.closest('.skill-propose-card').remove()">DISMISS</button>
+            </div>`;
+          proposals.prepend(el);
+        }
+        if (msg.type === 'jarvis_speaking' && msg.text && currentTab !== 'neural') {
+          appendJarvisMessage(msg.text);
+        }
+      } catch {}
+    };
+    ws.onerror = () => {};
+    ws.onclose = () => setTimeout(connectApiEvents, 5000);
+  } catch {}
+}
+connectApiEvents();
+
+function nameProposedSkill(pattern, cardEl) {
+  const name = prompt('Name this skill:', pattern.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+  if (!name) return;
+  fetch(`${API}/v1/skills`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ id: name, name, source:'learned', triggerPhrases: [pattern], description: `Learned from pattern: ${pattern}` }),
+  }).then(() => { cardEl.remove(); loadSkills(); }).catch(()=>{});
+}
+window.nameProposedSkill = nameProposedSkill;
+
+// Keyboard: G=graph, K=skills, N=neural, R=memory (existing shortcuts unchanged)
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key.toLowerCase() === 'g') switchTab('graph');
+  if (e.key.toLowerCase() === 'k') switchTab('skills');
+  if (e.key.toLowerCase() === 'r') switchTab('memory');
+  if (e.key.toLowerCase() === 'n') switchTab('neural');
 });
 </script>
 </body>

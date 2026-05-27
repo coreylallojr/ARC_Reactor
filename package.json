@@ -1,7 +1,7 @@
 {
   "name": "arc-reactor",
-  "version": "1.0.0",
-  "description": "J.A.R.V.I.S — AI Agent Voice Interface for Claude Code",
+  "version": "4.0.0",
+  "description": "J.A.R.V.I.S — Full Connected Brain: voice, memory, skills, knowledge graph, MCP, and 3D neural UI for Claude Code",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -9,17 +9,24 @@
     "dist": "electron-builder",
     "install-hooks": "node install.js"
   },
-  "dependencies": {},
   "devDependencies": {
     "electron": "^31.7.7",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "playwright": "^1.60.0"
   },
   "build": {
     "appId": "com.jarvis.arc-reactor",
     "productName": "ARC Reactor",
     "copyright": "Copyright © 2025",
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "assets/icon.ico"
     },
     "mac": {
@@ -53,5 +60,8 @@
       "!Neural/tool-log.jsonl",
       "!Neural/current.md"
     ]
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.10.0"
   }
 }

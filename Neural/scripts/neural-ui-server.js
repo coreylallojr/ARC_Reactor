@@ -27,6 +27,10 @@ const memory    = require('./jarvis-memory');
 const fallbacks = require('./jarvis-fallbacks');
 const { warmupCache } = require('./jarvis-cache-warmup');
 
+const DAEMON_SCRIPT   = path.join(__dirname, 'neural-daemon.js');
+const DAEMON_PID_PATH = path.join(config.neural || os.homedir(), '.daemon.pid');
+let daemonProcess = null;
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function readField(content, field) {
@@ -310,10 +314,28 @@ async function directOllamaResponse(text, projectPath) {
   } catch {}
 }
 
+function startDaemon() {
+  // Check if daemon is already running via PID file
+  try {
+    const pid = parseInt(fs.readFileSync(DAEMON_PID_PATH, 'utf8').trim(), 10);
+    if (!isNaN(pid)) {
+      try { process.kill(pid, 0); return; } catch {} // already running — signal 0 = existence check
+    }
+  } catch {}
+
+  daemonProcess = spawn(process.execPath, [DAEMON_SCRIPT], {
+    detached: true,
+    stdio: 'ignore',
+    windowsHide: true,
+  });
+  daemonProcess.unref();
+}
+
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`\nJARVIS Neural Core online → http://localhost:${PORT}\n`);
-  spawn('cmd', ['/c', 'start', `http://localhost:${PORT}`], { detached: true, stdio: 'ignore' }).unref();
+  if (!process.env.JARVIS_TEST) spawn('cmd', ['/c', 'start', `http://localhost:${PORT}`], { detached: true, stdio: 'ignore' }).unref();
   warmupOllama();
+  startDaemon();
   // Pre-generate TTS cache for all fallback lines (background, non-blocking)
   warmupCache().catch(() => {});
 });

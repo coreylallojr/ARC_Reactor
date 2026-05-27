@@ -237,7 +237,7 @@
     <h2>◈ &nbsp; INSTALL HOOKS</h2>
     <div class="info-box">
       JARVIS hooks into Claude Code to narrate every action.<br>
-      This writes two entries to <code>~/.claude/settings.json</code> — fully reversible.<br><br>
+      This writes to <code>~/.claude/settings.json</code> (hooks) and <code>~/.claude/mcp.json</code> (MCP server) — fully reversible.<br><br>
       It also adds a <code>jarvis</code> command to your shell profile so you can type<br>
       <code>jarvis start</code> from any terminal to launch everything.
     </div>
@@ -405,6 +405,12 @@ async function runInstall() {
   const aliasResult = await window.jarvis.writeShellAlias();
   if (aliasResult.ok) log('✓ "jarvis" command added to shell profile', 'success');
   else log('✗ Alias failed: ' + aliasResult.error, 'error');
+
+  progress(85);
+  log('Registering JARVIS MCP server...');
+  const mcpResult = await window.jarvis.writeMcpConfig(neuralDir);
+  if (mcpResult.ok) log('✓ MCP server registered in ~/.claude/mcp.json', 'success');
+  else log('✗ MCP registration failed: ' + mcpResult.error, 'error');
 
   progress(100);
   log('Setup complete.', 'success');

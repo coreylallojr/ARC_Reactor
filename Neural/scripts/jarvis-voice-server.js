@@ -18,6 +18,7 @@ try { config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8')); } catch {}
 
 const memory  = require('./jarvis-memory');
 const fallbacks = require('./jarvis-fallbacks');
+const { buildContext, formatContext } = require('./neural-context');
 
 // SSE clients for browser push
 const sseClients = new Set();
@@ -44,12 +45,40 @@ function setState(state) {
 
 // ── Ollama helpers ─────────────────────────────────────────────────────────────
 
-async function ollamaChat(systemPrompt, userPrompt, maxWords) {
+// Load current session state written by neural-logger.js
+function loadCurrentState() {
+  try {
+    const statePath = path.join(config.neural || os.homedir(), '.session-state.json');
+    return JSON.parse(fs.readFileSync(statePath, 'utf8'));
+  } catch { return {}; }
+}
+
+// Split accumulated buffer on sentence boundaries; call onSentence for each complete sentence.
+// Returns the remaining (incomplete) buffer fragment.
+function flushSentences(buffer, onSentence, force) {
+  const sentenceEnd = /[.!?](?:\s|$)/g;
+  let lastIndex = 0;
+  let match;
+  while ((match = sentenceEnd.exec(buffer)) !== null) {
+    const sentence = buffer.slice(lastIndex, match.index + 1).trim();
+    if (sentence.length > 8) onSentence(sentence);
+    lastIndex = match.index + 1;
+  }
+  const remaining = buffer.slice(lastIndex);
+  if (force && remaining.trim().length > 8) onSentence(remaining.trim());
+  return force ? '' : remaining;
+}
+
+// Streaming Ollama chat — calls onSentence for each complete sentence as tokens arrive.
+// Falls back to batch behaviour when onSentence is not provided.
+async function ollamaChatStreaming(systemPrompt, userPrompt, maxWords, onSentence) {
   maxWords = maxWords || 60;
   if (!config.ollamaUrl || !config.ollamaModel) return null;
   const base = config.ollamaUrl.replace(/\/v1.*$/, '');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 25000);
+  let text = '';
+  let sentenceBuffer = '';
   try {
     const res = await fetch(`${base}/api/chat`, {
       method: 'POST',
@@ -65,7 +94,6 @@ async function ollamaChat(systemPrompt, userPrompt, maxWords) {
       signal: controller.signal,
     });
     if (!res.ok) { clearTimeout(timer); return null; }
-    let text = '';
     const reader = res.body.getReader();
     const dec = new TextDecoder();
     outer: while (true) {
@@ -76,9 +104,15 @@ async function ollamaChat(systemPrompt, userPrompt, maxWords) {
         try {
           const d = JSON.parse(line);
           if (d.message?.content) {
-            text += d.message.content;
+            const token = d.message.content;
+            text += token;
+            sentenceBuffer += token;
             // Stream tokens to browser
-            pushEvent({ type: 'token', token: d.message.content });
+            pushEvent({ type: 'token', token });
+            // Flush complete sentences for streaming TTS
+            if (onSentence) {
+              sentenceBuffer = flushSentences(sentenceBuffer, onSentence, false);
+            }
             if (text.split(/\s+/).filter(Boolean).length >= maxWords) {
               controller.abort();
               reader.cancel().catch(() => {});
@@ -89,12 +123,21 @@ async function ollamaChat(systemPrompt, userPrompt, maxWords) {
         } catch {}
       }
     }
+    // Flush any remaining sentence fragment
+    if (onSentence && sentenceBuffer.trim()) {
+      flushSentences(sentenceBuffer, onSentence, true);
+    }
     clearTimeout(timer);
     return text.replace(/^["'`]+|["'`]+$/g, '').trim() || null;
   } catch {
     clearTimeout(timer);
     return null;
   }
+}
+
+// Legacy batch wrapper — kept for classifyIntent which doesn't need sentence streaming
+async function ollamaChat(systemPrompt, userPrompt, maxWords) {
+  return ollamaChatStreaming(systemPrompt, userPrompt, maxWords, null);
 }
 
 async function classifyIntent(transcript) {
@@ -150,11 +193,15 @@ async function speakAndPush(text) {
 
 // ── Voice router ───────────────────────────────────────────────────────────────
 
-const JARVIS_VOICE_SYSTEM = `You are JARVIS, Iron Man's AI assistant. British, dry, confident, precise.
+function buildVoiceSystem(ctx) {
+  const ctxLine = ctx ? formatContext(ctx) : '';
+  return `You are JARVIS, Iron Man's AI assistant. British, dry, confident, precise.
 You are having a voice conversation. Respond in 1-3 sentences.
 Say what the information implies — not just the raw answer.
-Say "sir" once per response. Never start with "I". No markdown, no formatting.
-Output: spoken text only.`;
+Say "sir" once per response. Never start with "I". No markdown.
+${ctxLine ? `Current context: ${ctxLine}` : ''}
+Output: spoken text only.`.trim();
+}
 
 async function handleTranscript(transcript) {
   if (!transcript || !transcript.trim()) return;
@@ -164,38 +211,126 @@ async function handleTranscript(transcript) {
   currentSession.turnCount++;
 
   // Immediate acknowledgment
-  const ack = fallbacks.selectFallback('IDLE', {});
   await speakAndPush("On it, sir.");
 
   setState('thinking');
 
+  // Build rich context for system prompt
+  const sessionState = loadCurrentState();
+  const projectCtx = await buildContext(sessionState, currentSession.projectPath);
+  const voiceSystem = buildVoiceSystem(projectCtx);
+
+  // Enrich fallback context with project state for token replacement
+  const fallbackCtx = {
+    ...sessionState,
+    focusFile: projectCtx.focusFile,
+    gitBranch: projectCtx.gitBranch,
+    errorStreak: projectCtx.errorStreak,
+    sessionOps: projectCtx.sessionOps,
+    durationMin: projectCtx.durationMin,
+  };
+
   const intent = await classifyIntent(transcript);
 
   if (!intent.requiresCode) {
-    // Direct Ollama answer path
+    // Direct Ollama answer path — streaming TTS
     const ctx = memory.loadRecentContext(currentSession.projectPath, currentSession.sessionId);
     const ctxStr = ctx.previousSession ? `Previous session: ${ctx.previousSession}\n` : '';
     const histStr = ctx.recentTurns.length > 0
       ? 'Recent:\n' + ctx.recentTurns.map(t => `${t.role}: ${t.content}`).join('\n') + '\n'
       : '';
 
-    const response = await ollamaChat(
-      JARVIS_VOICE_SYSTEM,
+    // Audio queue: sentence TTS jobs fire in parallel with generation,
+    // but we push audio_queued events in arrival order so the browser
+    // plays them sequentially.
+    const audioQueue = [];
+    let fullText = '';
+
+    const onSentence = (sentence) => {
+      // Fire TTS immediately — do NOT await; runs concurrently with token generation
+      const ttsPromise = generateSpeech(sentence).then((filename) => {
+        if (filename) {
+          pushEvent({ type: 'audio_queued', filename });
+          try {
+            const pendingPath = path.join(path.dirname(CONFIG_PATH), '.pending-audio');
+            fs.writeFileSync(pendingPath, filename);
+          } catch {}
+        }
+        return filename;
+      });
+      audioQueue.push(ttsPromise);
+    };
+
+    setState('speaking');
+    const response = await ollamaChatStreaming(
+      voiceSystem,
       `${ctxStr}${histStr}User: ${transcript}`,
-      55
+      55,
+      onSentence
     );
-    const text = response || fallbacks.selectFallback('IDLE', {});
-    memory.saveTurn(currentSession.sessionId, 'jarvis', text, currentSession.projectPath);
-    await speakAndPush(text);
+    fullText = response || fallbacks.selectFallback('IDLE', fallbackCtx);
+
+    // If streaming TTS produced no audio (e.g. TTS not configured), fall back to batch
+    if (audioQueue.length === 0) {
+      pushEvent({ type: 'jarvis_text', text: fullText });
+      const filename = await generateSpeech(fullText);
+      if (filename) {
+        pushEvent({ type: 'audio_ready', filename });
+        try {
+          const pendingPath = path.join(path.dirname(CONFIG_PATH), '.pending-audio');
+          fs.writeFileSync(pendingPath, filename);
+        } catch {}
+      }
+    } else {
+      pushEvent({ type: 'jarvis_text', text: fullText });
+      // Await all queued TTS jobs to ensure they complete before going idle
+      await Promise.all(audioQueue);
+    }
+
+    memory.saveTurn(currentSession.sessionId, 'jarvis', fullText, currentSession.projectPath);
+    setState('idle');
   } else {
     // Claude Code execution path
     setState('thinking');
     const result = await runClaudeCode(transcript);
     const summaryPrompt = `The user asked: "${transcript}"\nResult: ${result.substring(0, 800)}\nSummarise what happened in 2-3 JARVIS sentences. Be specific about outcomes.`;
-    const summary = await ollamaChat(JARVIS_VOICE_SYSTEM, summaryPrompt, 55);
-    const text = summary || fallbacks.selectFallback('TASK_COMPLETE', {});
+
+    const audioQueue = [];
+    const onSentence = (sentence) => {
+      const ttsPromise = generateSpeech(sentence).then((filename) => {
+        if (filename) {
+          pushEvent({ type: 'audio_queued', filename });
+          try {
+            const pendingPath = path.join(path.dirname(CONFIG_PATH), '.pending-audio');
+            fs.writeFileSync(pendingPath, filename);
+          } catch {}
+        }
+        return filename;
+      });
+      audioQueue.push(ttsPromise);
+    };
+
+    setState('speaking');
+    const summary = await ollamaChatStreaming(voiceSystem, summaryPrompt, 55, onSentence);
+    const text = summary || fallbacks.selectFallback('TASK_COMPLETE', fallbackCtx);
+
+    if (audioQueue.length === 0) {
+      pushEvent({ type: 'jarvis_text', text });
+      const filename = await generateSpeech(text);
+      if (filename) {
+        pushEvent({ type: 'audio_ready', filename });
+        try {
+          const pendingPath = path.join(path.dirname(CONFIG_PATH), '.pending-audio');
+          fs.writeFileSync(pendingPath, filename);
+        } catch {}
+      }
+    } else {
+      pushEvent({ type: 'jarvis_text', text });
+      await Promise.all(audioQueue);
+    }
+
     memory.saveTurn(currentSession.sessionId, 'jarvis', text, currentSession.projectPath);
-    await speakAndPush(text);
+    setState('idle');
   }
 }
 
