@@ -17,6 +17,12 @@ const DB_DIR = path.join(os.homedir(), '.claude', 'jarvis-db');
 // ---------------------------------------------------------------------------
 const SKILLS_PATH = path.join(DB_DIR, 'skills.json');
 
+// ---------------------------------------------------------------------------
+// Course storage
+// ---------------------------------------------------------------------------
+const COURSE_DATA_PATH = path.join(__dirname, '..', 'data', 'ee-course.json');
+const PROGRESS_PATH    = path.join(DB_DIR, 'course-progress.json');
+
 function loadSkills() {
   try { return JSON.parse(fs.readFileSync(SKILLS_PATH, 'utf8')); } catch { return []; }
 }
@@ -57,6 +63,35 @@ function initSkills() {
     }
   ];
   saveSkills(builtins);
+}
+
+function loadProgress() {
+  try { return JSON.parse(fs.readFileSync(PROGRESS_PATH, 'utf8')); }
+  catch { return {}; }
+}
+
+function saveProgress(p) {
+  try {
+    fs.mkdirSync(DB_DIR, { recursive: true });
+    fs.writeFileSync(PROGRESS_PATH, JSON.stringify(p, null, 2));
+  } catch {}
+}
+
+let _courseCache = null;
+function loadCourseData() {
+  if (_courseCache) return _courseCache;
+  try { return (_courseCache = JSON.parse(fs.readFileSync(COURSE_DATA_PATH, 'utf8'))); }
+  catch { return null; }
+}
+
+function parseCourseUrl(pathname) {
+  const parts = pathname.replace(/^\/+/, '').split('/');
+  // ['v1', 'courses', courseId?, seg3?, lessonId?]
+  const courseId = parts[2] || null;
+  const seg3     = parts[3] || null;
+  const lessonId = parts[4] || null;
+  const action   = seg3 === 'progress' ? 'progress' : seg3 === 'lessons' ? 'lessons' : null;
+  return { courseId, action, lessonId };
 }
 
 // ---------------------------------------------------------------------------
@@ -356,6 +391,101 @@ async function router(route, url, req, res) {
     } catch {}
     broadcast({ type: 'external_event', event: body });
     return json(res, { ok: true });
+  }
+
+  // ── GET /v1/courses ────────────────────────────────────────────────────────
+  if (route === 'GET /v1/courses') {
+    const course = loadCourseData();
+    if (!course) return json(res, { error: 'Course data not found' }, 404);
+    const progress       = loadProgress();
+    const courseProgress = progress[course.id] || {};
+    const summary = {
+      id:           course.id,
+      title:        course.title,
+      version:      course.version,
+      totalLessons: course.totalLessons,
+      modules: course.modules.map(mod => {
+        const total     = mod.lessons.length;
+        const completed = mod.lessons.filter(l => courseProgress[l.id] && courseProgress[l.id].completed).length;
+        return {
+          id:               mod.id,
+          title:            mod.title,
+          order:            mod.order,
+          totalLessons:     total,
+          completedLessons: completed,
+          lessons: mod.lessons.map(l => ({
+            id:        l.id,
+            title:     l.title,
+            order:     l.order,
+            completed: !!(courseProgress[l.id] && courseProgress[l.id].completed),
+            quizScore: courseProgress[l.id] ? courseProgress[l.id].quizScore : null,
+          }))
+        };
+      })
+    };
+    return json(res, { courses: [summary] });
+  }
+
+  // ── /v1/courses/* ──────────────────────────────────────────────────────────
+  if (url.pathname.startsWith('/v1/courses/')) {
+    const { courseId, action, lessonId } = parseCourseUrl(url.pathname);
+
+    // GET /v1/courses/:courseId
+    if (req.method === 'GET' && courseId && !action) {
+      const course = loadCourseData();
+      if (!course || course.id !== courseId) return json(res, { error: 'Course not found' }, 404);
+      const progress       = loadProgress();
+      const courseProgress = progress[course.id] || {};
+      const safe = {
+        ...course,
+        modules: course.modules.map(mod => ({
+          ...mod,
+          lessons: mod.lessons.map(l => ({
+            id:        l.id,
+            title:     l.title,
+            order:     l.order,
+            completed: !!(courseProgress[l.id] && courseProgress[l.id].completed),
+            quizScore: courseProgress[l.id] ? courseProgress[l.id].quizScore : null,
+          }))
+        }))
+      };
+      return json(res, safe);
+    }
+
+    // GET /v1/courses/:courseId/lessons/:lessonId
+    if (req.method === 'GET' && courseId && action === 'lessons' && lessonId) {
+      const course = loadCourseData();
+      if (!course || course.id !== courseId) return json(res, { error: 'Course not found' }, 404);
+      let lesson = null;
+      for (const mod of course.modules) {
+        const found = mod.lessons.find(l => l.id === lessonId);
+        if (found) { lesson = { ...found, moduleId: mod.id, moduleTitle: mod.title }; break; }
+      }
+      if (!lesson) return json(res, { error: 'Lesson not found' }, 404);
+      const progress = loadProgress();
+      const lp       = (progress[courseId] || {})[lessonId] || {};
+      lesson.completed = !!(lp.completed);
+      lesson.quizScore = lp.quizScore !== undefined ? lp.quizScore : null;
+      return json(res, lesson);
+    }
+
+    // POST /v1/courses/:courseId/progress
+    if (req.method === 'POST' && courseId && action === 'progress') {
+      const body = await readBody(req);
+      if (!body.lessonId) return json(res, { error: 'lessonId required' }, 400);
+      const progress = loadProgress();
+      if (!progress[courseId]) progress[courseId] = {};
+      progress[courseId][body.lessonId] = {
+        completed:   !!(body.completed),
+        quizScore:   typeof body.quizScore === 'number' ? body.quizScore : null,
+        completedAt: Date.now(),
+      };
+      saveProgress(progress);
+      broadcast({ type: 'lesson_completed', courseId, lessonId: body.lessonId, quizScore: body.quizScore });
+      return json(res, { ok: true });
+    }
+
+    return json(res, { error: 'Not found' }, 404);
   }
 
   // ── 404 ───────────────────────────────────────────────────────────────────

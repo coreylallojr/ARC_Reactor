@@ -1,0 +1,1098 @@
+{
+  "id": "electrical-engineering",
+  "title": "Electrical Engineering Fundamentals",
+  "version": "1.0.0",
+  "totalLessons": 32,
+  "modules": [
+    {
+      "id": "mod-01",
+      "title": "Circuit Fundamentals",
+      "order": 1,
+      "lessons": [
+        {
+          "id": "les-01-01",
+          "title": "Charge, Current & Voltage",
+          "order": 1,
+          "content": "Electricity begins with electric charge (Q), a fundamental property of matter measured in Coulombs (C). Electrons carry a negative charge of -1.6×10⁻¹⁹ C each, while protons carry +1.6×10⁻¹⁹ C. When charges move through a conductor, we call that flow electric current (I), measured in Amperes (A). One Ampere equals one Coulomb passing a cross-section per second. Voltage (V), measured in Volts, represents the electric potential difference between two points — the energy per unit charge needed to move a charge from one point to another. Think of voltage as pressure and current as flow rate: a garden hose with high pressure (voltage) and wide bore (low resistance) delivers high flow (current).",
+          "formulas": [
+            { "label": "Current", "latex": "I = dQ/dt", "units": "Amperes (A)" },
+            { "label": "Voltage", "latex": "V = W/Q", "units": "Volts (V)" },
+            { "label": "Charge", "latex": "Q = I * t", "units": "Coulombs (C)" }
+          ],
+          "workedExample": {
+            "problem": "A wire carries a steady current of 3 A. How much charge flows through a cross-section in 4 seconds?",
+            "solution": "Q = I × t = 3 × 4 = 12 C",
+            "steps": [
+              "Identify I = 3 A and t = 4 s",
+              "Apply Q = I × t",
+              "Q = 3 × 4 = 12 Coulombs"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "If 10 C of charge flows through a wire in 5 seconds, what is the current?",
+              "options": ["0.5 A", "2 A", "50 A", "15 A"],
+              "correct": 1,
+              "explanation": "I = Q/t = 10/5 = 2 A"
+            },
+            {
+              "id": "q02",
+              "question": "Voltage is best defined as:",
+              "options": ["The rate of charge flow", "Energy per unit charge between two points", "The resistance to current flow", "Power delivered per second"],
+              "correct": 1,
+              "explanation": "Voltage (V = W/Q) is the energy (work) per unit charge needed to move charge between two points."
+            },
+            {
+              "id": "q03",
+              "question": "A 2 A current flows for 30 seconds. How much charge is transferred?",
+              "options": ["15 C", "60 C", "32 C", "0.067 C"],
+              "correct": 1,
+              "explanation": "Q = I × t = 2 × 30 = 60 C"
+            }
+          ]
+        },
+        {
+          "id": "les-01-02",
+          "title": "Ohm's Law",
+          "order": 2,
+          "content": "Ohm's Law is the cornerstone of circuit analysis: the voltage across a resistor is directly proportional to the current through it, with the constant of proportionality being resistance (R), measured in Ohms (Ω). This relationship holds for linear (ohmic) materials where resistance is constant regardless of applied voltage or current. Practical resistors are labeled with their resistance value and a power rating (the maximum power they can dissipate as heat before being damaged). In circuits, resistors are used for current limiting, voltage division, pull-up/pull-down configurations, and setting bias points in amplifier stages. Note that Ohm's Law does NOT apply to non-linear devices like diodes, transistors, or light-emitting diodes, where the V-I relationship is non-linear.",
+          "formulas": [
+            { "label": "Ohm's Law", "latex": "V = I * R", "units": "V = Volts, I = Amperes, R = Ohms" },
+            { "label": "Current", "latex": "I = V / R", "units": "Amperes (A)" },
+            { "label": "Resistance", "latex": "R = V / I", "units": "Ohms (Ω)" }
+          ],
+          "workedExample": {
+            "problem": "A 12 V battery is connected across a 470 Ω resistor. What current flows, and what is the voltage drop across the resistor?",
+            "solution": "I = V/R = 12/470 ≈ 25.5 mA. The voltage drop equals the source voltage: 12 V.",
+            "steps": [
+              "Identify V = 12 V, R = 470 Ω",
+              "Apply I = V/R = 12/470",
+              "I = 0.02553 A = 25.5 mA",
+              "Voltage drop across R = I × R = 0.02553 × 470 = 12 V (as expected for a single-element circuit)"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "A 5 V supply is connected across a 100 Ω resistor. What current flows?",
+              "options": ["0.05 A", "500 A", "20 A", "0.5 A"],
+              "correct": 0,
+              "explanation": "I = V/R = 5/100 = 0.05 A = 50 mA"
+            },
+            {
+              "id": "q02",
+              "question": "If the current through a 220 Ω resistor is 10 mA, what is the voltage across it?",
+              "options": ["0.022 V", "2.2 V", "22 V", "220 V"],
+              "correct": 1,
+              "explanation": "V = I × R = 0.010 × 220 = 2.2 V"
+            },
+            {
+              "id": "q03",
+              "question": "Doubling the resistance while keeping voltage constant will:",
+              "options": ["Double the current", "Halve the current", "Keep the current the same", "Square the current"],
+              "correct": 1,
+              "explanation": "I = V/R. If R doubles and V is fixed, I is halved."
+            },
+            {
+              "id": "q04",
+              "question": "Ohm's Law applies to which of the following?",
+              "options": ["Diodes", "LEDs", "Resistors", "Transistors"],
+              "correct": 2,
+              "explanation": "Ohm's Law applies to linear (ohmic) elements like resistors. Diodes, LEDs, and transistors are non-linear devices."
+            }
+          ]
+        },
+        {
+          "id": "les-01-03",
+          "title": "Power & Energy",
+          "order": 3,
+          "content": "Electric power (P) is the rate at which energy is delivered or consumed, measured in Watts (W). One Watt equals one Joule per second. A resistor consuming power converts electrical energy to heat — this is called Joule heating. The power dissipated in a resistor depends on both the voltage across it and the current through it. Using Ohm's Law, power can be expressed three equivalent ways: P = VI, P = I²R, or P = V²/R. Engineers must always check that a component's power rating is not exceeded — exceeding it causes overheating and failure. Electric energy (E) is power integrated over time, measured in Joules (J) or the more practical kilowatt-hour (kWh) for large systems. Your electricity bill is based on kWh consumed.",
+          "formulas": [
+            { "label": "Power (general)", "latex": "P = V * I", "units": "Watts (W)" },
+            { "label": "Power (resistive)", "latex": "P = I^2 * R", "units": "Watts (W)" },
+            { "label": "Power (resistive)", "latex": "P = V^2 / R", "units": "Watts (W)" },
+            { "label": "Energy", "latex": "E = P * t", "units": "Joules (J) or kWh" }
+          ],
+          "workedExample": {
+            "problem": "A 100 Ω resistor has 20 V across it. Calculate (a) the current, (b) the power dissipated, and (c) the energy consumed in 1 hour.",
+            "solution": "(a) I = V/R = 20/100 = 0.2 A. (b) P = V²/R = 400/100 = 4 W. (c) E = P×t = 4 × 3600 = 14,400 J = 0.004 kWh.",
+            "steps": [
+              "I = V/R = 20/100 = 0.2 A",
+              "P = V²/R = 20²/100 = 400/100 = 4 W",
+              "Verify: P = I²R = 0.04 × 100 = 4 W ✓",
+              "E = P × t = 4 W × 3600 s = 14,400 J",
+              "In kWh: 14,400 / 3,600,000 = 0.004 kWh"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "A 12 V battery delivers 2 A to a circuit. What is the power?",
+              "options": ["6 W", "24 W", "14 W", "0.17 W"],
+              "correct": 1,
+              "explanation": "P = V × I = 12 × 2 = 24 W"
+            },
+            {
+              "id": "q02",
+              "question": "A 10 Ω resistor carries 3 A. What power does it dissipate?",
+              "options": ["30 W", "0.9 W", "90 W", "300 W"],
+              "correct": 2,
+              "explanation": "P = I²R = 3² × 10 = 9 × 10 = 90 W"
+            },
+            {
+              "id": "q03",
+              "question": "Which formula gives power purely in terms of voltage and resistance?",
+              "options": ["P = IR", "P = V²/R", "P = I²/R", "P = VR"],
+              "correct": 1,
+              "explanation": "P = V²/R is derived by substituting I = V/R into P = VI."
+            }
+          ]
+        },
+        {
+          "id": "les-01-04",
+          "title": "Series & Parallel Resistors",
+          "order": 4,
+          "content": "Resistors can be combined in series (end-to-end, same current through each) or in parallel (side-by-side, same voltage across each). In a series circuit, total resistance is simply the sum of all resistors — current has no alternate path, so every resistor impedes it equally. The voltage divides across resistors proportionally to their values. In a parallel circuit, the total resistance is lower than any individual resistor because current has multiple paths. The reciprocal formula (1/R_total = 1/R1 + 1/R2 + ...) applies. For just two resistors in parallel, the product-over-sum shortcut simplifies calculation: R_total = (R1 × R2)/(R1 + R2). Real circuits often combine series and parallel sections — break them into sub-networks and simplify step by step.",
+          "formulas": [
+            { "label": "Series total resistance", "latex": "R_total = R1 + R2 + ... + Rn", "units": "Ohms (Ω)" },
+            { "label": "Parallel total resistance", "latex": "1/R_total = 1/R1 + 1/R2 + ... + 1/Rn", "units": "Ohms (Ω)" },
+            { "label": "Two resistors in parallel", "latex": "R_total = (R1 * R2) / (R1 + R2)", "units": "Ohms (Ω)" },
+            { "label": "Voltage divider", "latex": "Vout = Vin * R2 / (R1 + R2)", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "Find the total resistance of: 100 Ω and 400 Ω in series, then that combination in parallel with 200 Ω.",
+            "solution": "Series: R_s = 100 + 400 = 500 Ω. Parallel with 200 Ω: R_total = (500 × 200)/(500 + 200) = 100,000/700 ≈ 142.9 Ω.",
+            "steps": [
+              "Combine series: R_s = 100 + 400 = 500 Ω",
+              "Now parallel: R_total = (R_s × 200)/(R_s + 200)",
+              "R_total = (500 × 200)/(500 + 200) = 100000/700",
+              "R_total ≈ 142.9 Ω"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "Three 30 Ω resistors are in series. What is the total resistance?",
+              "options": ["10 Ω", "30 Ω", "90 Ω", "270 Ω"],
+              "correct": 2,
+              "explanation": "R_total = 30 + 30 + 30 = 90 Ω in series."
+            },
+            {
+              "id": "q02",
+              "question": "Two 100 Ω resistors are in parallel. What is the total resistance?",
+              "options": ["200 Ω", "100 Ω", "50 Ω", "25 Ω"],
+              "correct": 2,
+              "explanation": "R = (100 × 100)/(100 + 100) = 10000/200 = 50 Ω"
+            },
+            {
+              "id": "q03",
+              "question": "In a voltage divider with R1 = 3 kΩ and R2 = 1 kΩ from a 12 V supply, what is Vout across R2?",
+              "options": ["3 V", "9 V", "6 V", "12 V"],
+              "correct": 0,
+              "explanation": "Vout = 12 × 1/(3+1) = 12 × 0.25 = 3 V"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod-02",
+      "title": "Circuit Analysis",
+      "order": 2,
+      "lessons": [
+        {
+          "id": "les-02-01",
+          "title": "Kirchhoff's Voltage Law (KVL)",
+          "order": 1,
+          "content": "Kirchhoff's Voltage Law (KVL) states that the algebraic sum of all voltages around any closed loop in a circuit equals zero. This is a direct consequence of energy conservation: if you travel around a loop and return to your starting point, the net energy gained or lost must be zero. To apply KVL: choose a direction around the loop, assign voltage polarities to each element (voltage rises across sources, drops across passive elements in the direction of current), then sum all voltages to zero. Sign convention matters: a voltage rise is positive, a drop is negative. KVL is one of two fundamental laws (alongside KCL) that let us analyze any circuit, regardless of complexity.",
+          "formulas": [
+            { "label": "KVL", "latex": "Sum of V around loop = 0", "units": "Volts (V)" },
+            { "label": "KVL expanded", "latex": "V1 + V2 + V3 + ... = 0", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "A series circuit has a 9 V source, a 2 Ω resistor, and a 4 Ω resistor. Apply KVL to find the current.",
+            "solution": "KVL: 9 - 2I - 4I = 0 → 9 = 6I → I = 1.5 A",
+            "steps": [
+              "Label the loop: source voltage = +9 V, voltage drops across resistors are negative",
+              "KVL around loop: +9 - V_R1 - V_R2 = 0",
+              "Substitute V_R1 = 2I, V_R2 = 4I",
+              "9 - 2I - 4I = 0",
+              "9 = 6I → I = 1.5 A"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "KVL is based on which fundamental principle?",
+              "options": ["Conservation of charge", "Conservation of energy", "Newton's second law", "Faraday's law"],
+              "correct": 1,
+              "explanation": "KVL is derived from conservation of energy — voltage is energy per charge, and the net energy around a closed path must be zero."
+            },
+            {
+              "id": "q02",
+              "question": "In a loop with a 10 V source and two resistors dropping 4 V and 3 V, what is the voltage drop across a third unknown resistor?",
+              "options": ["17 V", "3 V", "7 V", "10 V"],
+              "correct": 1,
+              "explanation": "KVL: 10 - 4 - 3 - V3 = 0 → V3 = 3 V"
+            },
+            {
+              "id": "q03",
+              "question": "Applying KVL to a loop with a 6 V source, a 2 Ω resistor, and a 1 Ω resistor: what is the current?",
+              "options": ["3 A", "2 A", "6 A", "1 A"],
+              "correct": 1,
+              "explanation": "6 - 2I - 1I = 0 → 6 = 3I → I = 2 A"
+            }
+          ]
+        },
+        {
+          "id": "les-02-02",
+          "title": "Kirchhoff's Current Law (KCL)",
+          "order": 2,
+          "content": "Kirchhoff's Current Law (KCL) states that the algebraic sum of all currents entering and leaving a node equals zero. A node is any junction where two or more circuit elements meet. KCL follows from conservation of charge: charge cannot accumulate at a node in steady state. Convention: currents entering a node are positive, currents leaving are negative (or vice versa — be consistent). KCL is powerful for analyzing parallel circuits and multi-branch networks. Together with KVL, it forms the foundation for systematic methods like mesh analysis and node analysis, which can solve any linear circuit no matter how complex.",
+          "formulas": [
+            { "label": "KCL", "latex": "Sum of I into node = 0", "units": "Amperes (A)" },
+            { "label": "KCL expanded", "latex": "I_in1 + I_in2 = I_out1 + I_out2", "units": "Amperes (A)" }
+          ],
+          "workedExample": {
+            "problem": "At a node, currents of 5 A and 3 A flow in. Two currents flow out: I1 and I2, where I2 = 2 A. Find I1.",
+            "solution": "KCL: 5 + 3 = I1 + 2 → I1 = 6 A",
+            "steps": [
+              "Sum all currents into node: 5 + 3 = 8 A total in",
+              "Sum all currents out: I1 + 2",
+              "KCL: 8 = I1 + 2",
+              "I1 = 6 A"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "KCL is based on which principle?",
+              "options": ["Conservation of energy", "Conservation of charge", "Newton's third law", "Ohm's law"],
+              "correct": 1,
+              "explanation": "KCL reflects conservation of charge — charge cannot accumulate at a node."
+            },
+            {
+              "id": "q02",
+              "question": "At a node, 8 A flows in and 3 A and 2 A flow out. What is the third outgoing current?",
+              "options": ["13 A", "3 A", "5 A", "8 A"],
+              "correct": 1,
+              "explanation": "8 = 3 + 2 + I3 → I3 = 3 A"
+            },
+            {
+              "id": "q03",
+              "question": "What is a 'node' in circuit analysis?",
+              "options": ["A component that dissipates power", "Any junction where two or more elements connect", "A voltage source terminal", "A closed loop in the circuit"],
+              "correct": 1,
+              "explanation": "A node is any junction point where circuit elements meet. KCL applies at every node."
+            }
+          ]
+        },
+        {
+          "id": "les-02-03",
+          "title": "Mesh Analysis",
+          "order": 3,
+          "content": "Mesh analysis (also called mesh current method) is a systematic technique to solve complex circuits using KVL. A mesh is an independent loop with no other loops inside it. The method assigns a clockwise mesh current to each mesh, then applies KVL to each mesh — writing voltage drops in terms of mesh currents. This generates a system of equations solvable for the unknown mesh currents, from which branch currents and voltages can be found. Mesh analysis is especially efficient when circuits have more nodes than meshes — it produces fewer equations. The technique becomes even more powerful with the mesh impedance matrix formulation, which can be written directly by inspection for circuits containing only resistors and independent voltage sources.",
+          "formulas": [
+            { "label": "Mesh KVL equation", "latex": "Sum(R_k * I_m) - Sum(R_shared * I_adjacent) = V_source", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "A circuit has two meshes. Mesh 1: 10 V source, 2 Ω (left), 4 Ω (shared). Mesh 2: no source, 4 Ω (shared), 6 Ω (right). Find mesh currents I1 and I2.",
+            "solution": "Mesh 1 KVL: 10 = 2I1 + 4(I1-I2) = 6I1 - 4I2. Mesh 2 KVL: 0 = 6I2 + 4(I2-I1) = -4I1 + 10I2. Solving: I1 = 2 A, I2 = 0.8 A.",
+            "steps": [
+              "Assign clockwise mesh currents I1 (left mesh) and I2 (right mesh)",
+              "Mesh 1 KVL: 10 - 2I1 - 4(I1-I2) = 0 → 6I1 - 4I2 = 10",
+              "Mesh 2 KVL: 0 - 6I2 - 4(I2-I1) = 0 → -4I1 + 10I2 = 0",
+              "From eq 2: I1 = 2.5 I2",
+              "Substitute: 6(2.5 I2) - 4I2 = 10 → 11I2 = 10 → I2 = 10/11 ≈ 0.909 A",
+              "I1 = 2.5 × 0.909 = 2.273 A"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "In mesh analysis, what is a 'mesh'?",
+              "options": ["Any closed loop in the circuit", "An independent loop with no inner loops", "A junction of three or more elements", "A series combination of resistors"],
+              "correct": 1,
+              "explanation": "A mesh is a loop that contains no other loops inside it — the smallest independent loop."
+            },
+            {
+              "id": "q02",
+              "question": "Mesh analysis is based on which law?",
+              "options": ["KCL", "KVL", "Ohm's Law only", "Faraday's Law"],
+              "correct": 1,
+              "explanation": "Mesh analysis applies KVL to each mesh, expressing voltages in terms of mesh currents."
+            },
+            {
+              "id": "q03",
+              "question": "In a circuit with 4 nodes and 3 meshes, which method generates fewer equations?",
+              "options": ["Node analysis (3 equations)", "Mesh analysis (3 equations)", "Both generate the same number", "Mesh analysis (4 equations)"],
+              "correct": 1,
+              "explanation": "With 3 meshes and 4 nodes (3 independent node equations needed), they are equal here, but mesh analysis generates equations equal to the number of meshes."
+            }
+          ]
+        },
+        {
+          "id": "les-02-04",
+          "title": "Thevenin & Norton Equivalents",
+          "order": 4,
+          "content": "Thevenin's theorem states that any linear circuit, viewed from two terminals, can be replaced by a single voltage source (V_th) in series with a single resistance (R_th). Norton's theorem is the dual: the same circuit can be replaced by a current source (I_N) in parallel with R_N. These equivalent circuits simplify analysis dramatically — especially when you want to analyze what happens with different loads attached. To find V_th: disconnect the load, compute the open-circuit voltage at the terminals. To find R_th: deactivate all independent sources (replace voltage sources with short circuits, current sources with open circuits), then compute the resistance seen from the terminals. Norton current I_N = V_th / R_th. Thevenin and Norton representations are interchangeable via source transformation.",
+          "formulas": [
+            { "label": "Thevenin voltage", "latex": "V_th = V_oc (open-circuit voltage)", "units": "Volts (V)" },
+            { "label": "Thevenin resistance", "latex": "R_th = V_oc / I_sc (or deactivate sources)", "units": "Ohms (Ω)" },
+            { "label": "Norton current", "latex": "I_N = V_th / R_th = I_sc", "units": "Amperes (A)" },
+            { "label": "Load current", "latex": "I_L = V_th / (R_th + R_L)", "units": "Amperes (A)" }
+          ],
+          "workedExample": {
+            "problem": "Find the Thevenin equivalent of a circuit with a 12 V source, R1 = 3 Ω in series, and R2 = 6 Ω in parallel with the output terminals.",
+            "solution": "V_th = 12 × 6/(3+6) = 8 V. R_th = 3||6 = (3×6)/(3+6) = 2 Ω.",
+            "steps": [
+              "Open-circuit voltage V_th: voltage divider between R1 and R2",
+              "V_th = 12 × R2/(R1+R2) = 12 × 6/9 = 8 V",
+              "Deactivate 12 V source (replace with short circuit)",
+              "R_th seen from terminals = R1 || R2 = (3×6)/(3+6) = 18/9 = 2 Ω",
+              "Thevenin: 8 V source in series with 2 Ω"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "To find R_th, what do you do with independent voltage sources?",
+              "options": ["Replace them with open circuits", "Replace them with short circuits", "Keep them at their rated voltage", "Double their value"],
+              "correct": 1,
+              "explanation": "To find R_th, deactivate sources: voltage sources become short circuits (0 V), current sources become open circuits (0 A)."
+            },
+            {
+              "id": "q02",
+              "question": "The Thevenin equivalent of any linear circuit consists of:",
+              "options": ["A current source in series with a resistor", "A voltage source in parallel with a resistor", "A voltage source in series with a resistor", "Two resistors and a source"],
+              "correct": 2,
+              "explanation": "Thevenin equivalent = V_th (voltage source) in series with R_th (resistance)."
+            },
+            {
+              "id": "q03",
+              "question": "If V_th = 6 V and R_th = 2 Ω, what is the Norton current I_N?",
+              "options": ["12 A", "0.33 A", "3 A", "8 A"],
+              "correct": 2,
+              "explanation": "I_N = V_th / R_th = 6/2 = 3 A"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod-03",
+      "title": "Passive Components",
+      "order": 3,
+      "lessons": [
+        {
+          "id": "les-03-01",
+          "title": "Capacitors",
+          "order": 1,
+          "content": "A capacitor stores energy in an electric field between two conductive plates separated by an insulator (dielectric). Capacitance (C), measured in Farads (F), quantifies this storage ability. Most practical capacitors are in the microfarad (μF) to picofarad (pF) range. The key behaviors: a capacitor blocks DC current in steady state (it charges until Vc = Vsource, then no more current flows); it passes AC signals; it opposes instantaneous voltage changes (you cannot change voltage across a capacitor instantaneously without infinite current). Types include ceramic (small, stable), electrolytic (large values, polarized — must observe polarity!), and film capacitors. Capacitors are used in power supply filtering, signal coupling/decoupling, timer circuits, and oscillators.",
+          "formulas": [
+            { "label": "Charge stored", "latex": "Q = C * V", "units": "Coulombs (C)" },
+            { "label": "Current-voltage", "latex": "I = C * dV/dt", "units": "Amperes (A)" },
+            { "label": "Energy stored", "latex": "E = (1/2) * C * V^2", "units": "Joules (J)" },
+            { "label": "Capacitors in parallel", "latex": "C_total = C1 + C2 + ...", "units": "Farads (F)" },
+            { "label": "Capacitors in series", "latex": "1/C_total = 1/C1 + 1/C2 + ...", "units": "Farads (F)" }
+          ],
+          "workedExample": {
+            "problem": "A 100 μF capacitor is charged to 50 V. Calculate (a) the stored charge, and (b) the energy stored.",
+            "solution": "(a) Q = CV = 100×10⁻⁶ × 50 = 5 mC. (b) E = ½CV² = ½ × 100×10⁻⁶ × 50² = 0.125 J.",
+            "steps": [
+              "C = 100 μF = 100×10⁻⁶ F, V = 50 V",
+              "Q = C × V = 100×10⁻⁶ × 50 = 5×10⁻³ C = 5 mC",
+              "E = ½ × C × V² = ½ × 100×10⁻⁶ × 2500",
+              "E = ½ × 0.25 = 0.125 J"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "A capacitor in a DC steady-state circuit acts as:",
+              "options": ["A short circuit", "An open circuit", "A resistor", "A current source"],
+              "correct": 1,
+              "explanation": "In DC steady state, a capacitor is fully charged (no current flows through it) — it appears as an open circuit."
+            },
+            {
+              "id": "q02",
+              "question": "A 10 μF capacitor is charged to 100 V. What is the stored energy?",
+              "options": ["0.05 J", "5 J", "0.5 J", "0.1 J"],
+              "correct": 0,
+              "explanation": "E = ½CV² = ½ × 10×10⁻⁶ × 10000 = 0.05 J"
+            },
+            {
+              "id": "q03",
+              "question": "Two 10 μF capacitors in parallel give a total capacitance of:",
+              "options": ["5 μF", "20 μF", "10 μF", "100 μF"],
+              "correct": 1,
+              "explanation": "Capacitors in parallel add: C_total = 10 + 10 = 20 μF"
+            }
+          ]
+        },
+        {
+          "id": "les-03-02",
+          "title": "Inductors",
+          "order": 2,
+          "content": "An inductor stores energy in a magnetic field created by current flowing through a coil of wire. Inductance (L), measured in Henries (H), quantifies this storage ability. Practical inductors range from nanohenries (RF circuits) to henries (power supplies). Key behaviors: an inductor opposes instantaneous changes in current (analogous to capacitor opposing voltage changes); it passes DC freely (acts as a short circuit in DC steady state); it blocks high-frequency AC. The back-EMF (electromotive force) generated by a changing current is described by Faraday's law. Inductors are used in switching power supplies (storing and releasing energy), filters, transformers, and RF circuits. Real inductors have series resistance (DCR) which must be accounted for in precision designs.",
+          "formulas": [
+            { "label": "Voltage-current", "latex": "V = L * dI/dt", "units": "Volts (V)" },
+            { "label": "Energy stored", "latex": "E = (1/2) * L * I^2", "units": "Joules (J)" },
+            { "label": "Inductors in series", "latex": "L_total = L1 + L2 + ...", "units": "Henries (H)" },
+            { "label": "Inductors in parallel", "latex": "1/L_total = 1/L1 + 1/L2 + ...", "units": "Henries (H)" }
+          ],
+          "workedExample": {
+            "problem": "A 50 mH inductor carries a current that changes from 0 to 4 A in 2 ms. Calculate (a) the induced voltage, and (b) the energy stored at 4 A.",
+            "solution": "(a) V = L × dI/dt = 50×10⁻³ × (4/2×10⁻³) = 100 V. (b) E = ½LI² = ½ × 50×10⁻³ × 16 = 0.4 J.",
+            "steps": [
+              "L = 50 mH = 0.05 H, dI = 4 A, dt = 2 ms = 0.002 s",
+              "V = L × dI/dt = 0.05 × 4/0.002 = 0.05 × 2000 = 100 V",
+              "E = ½ × L × I² = ½ × 0.05 × 4² = ½ × 0.05 × 16 = 0.4 J"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "An inductor in a DC steady-state circuit acts as:",
+              "options": ["An open circuit", "A short circuit", "A capacitor", "A voltage source"],
+              "correct": 1,
+              "explanation": "In DC steady state, current is constant (dI/dt = 0), so V = L × 0 = 0. The inductor acts as a short circuit (just its wire resistance)."
+            },
+            {
+              "id": "q02",
+              "question": "A 100 mH inductor carries 2 A. What energy is stored?",
+              "options": ["0.4 J", "0.2 J", "0.1 J", "0.04 J"],
+              "correct": 1,
+              "explanation": "E = ½LI² = ½ × 0.1 × 4 = 0.2 J"
+            },
+            {
+              "id": "q03",
+              "question": "The unit of inductance is:",
+              "options": ["Farad", "Henry", "Ohm", "Weber"],
+              "correct": 1,
+              "explanation": "Inductance is measured in Henries (H), named after Joseph Henry."
+            }
+          ]
+        },
+        {
+          "id": "les-03-03",
+          "title": "RC & RL Time Constants",
+          "order": 3,
+          "content": "When a capacitor charges through a resistor (RC circuit) or an inductor energizes through a resistor (RL circuit), the response follows an exponential curve characterized by a time constant (τ, tau). For an RC circuit, τ = RC. For an RL circuit, τ = L/R. After one time constant, the response has reached about 63.2% of its final value. After 5τ, it is considered fully settled (>99%). This exponential behavior arises from the differential equation governing these circuits. Time constants are crucial in timing circuits (555 timers), filter design (cutoff frequency = 1/(2πτ)), signal edge detection, and analog memory. The initial and final values, combined with the time constant, fully describe the natural and step response of first-order circuits.",
+          "formulas": [
+            { "label": "RC time constant", "latex": "tau = R * C", "units": "Seconds (s)" },
+            { "label": "RL time constant", "latex": "tau = L / R", "units": "Seconds (s)" },
+            { "label": "RC charging voltage", "latex": "V(t) = V_f * (1 - e^(-t/tau))", "units": "Volts (V)" },
+            { "label": "RC discharging", "latex": "V(t) = V_0 * e^(-t/tau)", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "A 10 kΩ resistor and 47 μF capacitor form an RC circuit driven by a 5 V step. Find τ and the voltage after one time constant.",
+            "solution": "τ = RC = 10,000 × 47×10⁻⁶ = 0.47 s. V(τ) = 5(1 - e⁻¹) = 5 × 0.632 = 3.16 V.",
+            "steps": [
+              "τ = R × C = 10×10³ × 47×10⁻⁶ = 0.47 s",
+              "V at t = τ: V(τ) = 5 × (1 - e⁻¹)",
+              "e⁻¹ ≈ 0.368, so 1 - 0.368 = 0.632",
+              "V(τ) = 5 × 0.632 = 3.16 V"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "An RC circuit has R = 1 kΩ and C = 10 μF. What is the time constant?",
+              "options": ["10 ms", "0.01 ms", "100 ms", "1 s"],
+              "correct": 0,
+              "explanation": "τ = RC = 1000 × 10×10⁻⁶ = 10×10⁻³ = 10 ms"
+            },
+            {
+              "id": "q02",
+              "question": "After 5 time constants, a capacitor in an RC circuit has charged to approximately:",
+              "options": ["63% of final value", "95% of final value", "99% of final value", "50% of final value"],
+              "correct": 2,
+              "explanation": "After 5τ: V = V_f(1 - e⁻⁵) ≈ V_f × 0.9933, which is about 99% of the final value."
+            },
+            {
+              "id": "q03",
+              "question": "An RL circuit has L = 100 mH and R = 50 Ω. What is τ?",
+              "options": ["5 s", "0.002 s", "5000 s", "0.5 s"],
+              "correct": 1,
+              "explanation": "τ = L/R = 0.1/50 = 0.002 s = 2 ms"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod-04",
+      "title": "AC Circuits",
+      "order": 4,
+      "lessons": [
+        {
+          "id": "les-04-01",
+          "title": "Sinusoidal Signals & Phasors",
+          "order": 1,
+          "content": "Alternating current (AC) signals vary sinusoidally with time. A sinusoidal voltage is described by v(t) = Vm·cos(ωt + φ), where Vm is the peak amplitude, ω = 2πf is the angular frequency (rad/s), f is frequency in Hz, and φ is the initial phase angle. The RMS (root mean square) value, V_rms = Vm/√2, is the DC equivalent for power calculations. Phasors transform sinusoidal analysis from time-domain differential equations into algebraic equations in the frequency domain. A phasor V = Vm∠φ is a complex number encoding amplitude and phase. When all sources are at the same frequency, KVL and KCL apply directly to phasors, and Ohm's law generalizes to V = Z·I using complex impedance Z. This dramatically simplifies AC circuit analysis.",
+          "formulas": [
+            { "label": "Sinusoid", "latex": "v(t) = Vm * cos(omega*t + phi)", "units": "Volts (V)" },
+            { "label": "Angular frequency", "latex": "omega = 2 * pi * f", "units": "rad/s" },
+            { "label": "RMS value", "latex": "V_rms = Vm / sqrt(2)", "units": "Volts (V)" },
+            { "label": "Phasor", "latex": "V = Vm angle(phi)", "units": "V at angle φ" }
+          ],
+          "workedExample": {
+            "problem": "A voltage source is v(t) = 170·cos(377t + 30°) V. Find (a) peak voltage, (b) frequency, (c) RMS voltage, and (d) phasor representation.",
+            "solution": "(a) Vm = 170 V. (b) ω = 377 rad/s → f = 377/(2π) ≈ 60 Hz. (c) Vrms = 170/√2 ≈ 120 V. (d) V = 170∠30°.",
+            "steps": [
+              "Read off Vm = 170 V directly",
+              "ω = 377 rad/s; f = ω/(2π) = 377/6.283 ≈ 60 Hz",
+              "Vrms = Vm/√2 = 170/1.414 ≈ 120 V (standard US household voltage)",
+              "Phasor: V = 170∠30° V"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "For v(t) = 10·cos(1000t) V, what is the RMS voltage?",
+              "options": ["10 V", "7.07 V", "14.14 V", "5 V"],
+              "correct": 1,
+              "explanation": "Vrms = Vm/√2 = 10/1.414 ≈ 7.07 V"
+            },
+            {
+              "id": "q02",
+              "question": "What is the frequency of v(t) = 5·cos(628t) V?",
+              "options": ["628 Hz", "100 Hz", "314 Hz", "50 Hz"],
+              "correct": 1,
+              "explanation": "ω = 628 rad/s; f = ω/(2π) = 628/6.283 ≈ 100 Hz"
+            },
+            {
+              "id": "q03",
+              "question": "A phasor V = 20∠-45° represents a sinusoid of peak amplitude:",
+              "options": ["45 V", "14.14 V", "20 V", "-45 V"],
+              "correct": 2,
+              "explanation": "The magnitude of the phasor is the peak amplitude: Vm = 20 V."
+            }
+          ]
+        },
+        {
+          "id": "les-04-02",
+          "title": "Impedance & Admittance",
+          "order": 2,
+          "content": "Impedance (Z), measured in Ohms, generalizes resistance to AC circuits. It is a complex quantity: Z = R + jX, where R is the real (resistive) part and X is the imaginary (reactive) part. Inductive reactance X_L = ωL is positive (voltage leads current). Capacitive reactance X_C = 1/(ωC) is negative (current leads voltage). Admittance Y = 1/Z (in Siemens) is the AC analog of conductance. Ohm's law in phasor domain: V = Z·I. Series impedances add (like series resistors). Parallel admittances add (like parallel conductances). The magnitude |Z| and phase angle ∠Z tell you the amplitude ratio and phase shift between voltage and current. Power factor = cos(∠Z) indicates how efficiently power is transferred.",
+          "formulas": [
+            { "label": "Impedance", "latex": "Z = R + jX", "units": "Ohms (Ω)" },
+            { "label": "Inductive reactance", "latex": "X_L = omega * L", "units": "Ohms (Ω)" },
+            { "label": "Capacitive reactance", "latex": "X_C = -1 / (omega * C)", "units": "Ohms (Ω)" },
+            { "label": "Admittance", "latex": "Y = 1 / Z = G + jB", "units": "Siemens (S)" }
+          ],
+          "workedExample": {
+            "problem": "At ω = 1000 rad/s, find the impedance of a 100 Ω resistor in series with a 10 mH inductor and a 10 μF capacitor.",
+            "solution": "Z_R = 100. Z_L = j×1000×0.01 = j10. Z_C = -j/(1000×10⁻⁵) = -j100. Z_total = 100 + j10 - j100 = 100 - j90. |Z| = √(100²+90²) ≈ 134.5 Ω, ∠Z = arctan(-90/100) ≈ -42°.",
+            "steps": [
+              "Z_R = 100 Ω (purely real)",
+              "Z_L = jωL = j × 1000 × 0.01 = j10 Ω",
+              "Z_C = 1/(jωC) = -j/(ωC) = -j/(1000 × 10⁻⁵) = -j100 Ω",
+              "Z_total = 100 + j10 + (-j100) = 100 - j90 Ω",
+              "|Z| = √(100² + 90²) = √(10000 + 8100) = √18100 ≈ 134.5 Ω",
+              "∠Z = arctan(-90/100) ≈ -42° (capacitive, current leads)"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "The inductive reactance of a 20 mH inductor at 500 rad/s is:",
+              "options": ["25 Ω", "10 Ω", "500 Ω", "40 Ω"],
+              "correct": 1,
+              "explanation": "X_L = ωL = 500 × 0.020 = 10 Ω"
+            },
+            {
+              "id": "q02",
+              "question": "The capacitive reactance of a 50 μF capacitor at ω = 1000 rad/s is:",
+              "options": ["-j50 Ω", "-j20 Ω", "+j20 Ω", "-j0.05 Ω"],
+              "correct": 1,
+              "explanation": "X_C = -1/(ωC) = -1/(1000 × 50×10⁻⁶) = -1/0.05 = -20 Ω → Z_C = -j20 Ω"
+            },
+            {
+              "id": "q03",
+              "question": "At resonance in a series RLC circuit, the impedance equals:",
+              "options": ["Zero", "R only (real)", "jX_L", "Very large value"],
+              "correct": 1,
+              "explanation": "At resonance, X_L = X_C, so the imaginary parts cancel and Z = R (purely resistive)."
+            }
+          ]
+        },
+        {
+          "id": "les-04-03",
+          "title": "RLC Resonance",
+          "order": 3,
+          "content": "Resonance in an RLC circuit occurs when inductive and capacitive reactances are equal in magnitude: X_L = X_C. At the resonant frequency ω₀ = 1/√(LC), the impedance of a series RLC circuit is at its minimum (equal to R), and current is at its maximum. In a parallel RLC circuit, resonance produces maximum impedance and minimum current from the source. The quality factor Q = ω₀L/R = 1/(ω₀CR) measures the sharpness of resonance — a higher Q means a sharper, taller peak. Bandwidth BW = ω₀/Q defines the frequency range where the response is within 3 dB (1/√2) of the peak. Resonant circuits are used in radio tuners (to select one frequency from many), oscillators, and bandpass filters.",
+          "formulas": [
+            { "label": "Resonant frequency", "latex": "omega_0 = 1 / sqrt(L * C)", "units": "rad/s" },
+            { "label": "Resonant frequency (Hz)", "latex": "f_0 = 1 / (2*pi*sqrt(L*C))", "units": "Hz" },
+            { "label": "Quality factor", "latex": "Q = omega_0 * L / R", "units": "Dimensionless" },
+            { "label": "Bandwidth", "latex": "BW = omega_0 / Q = R / L", "units": "rad/s" }
+          ],
+          "workedExample": {
+            "problem": "A series RLC circuit has R = 10 Ω, L = 1 mH, C = 1 μF. Find (a) resonant frequency, (b) Q factor, (c) bandwidth.",
+            "solution": "(a) ω₀ = 1/√(10⁻³×10⁻⁶) = 1/√(10⁻⁹) = 31,623 rad/s ≈ 5.03 kHz. (b) Q = ω₀L/R = 31623×10⁻³/10 = 3.16. (c) BW = ω₀/Q = 10,000 rad/s.",
+            "steps": [
+              "ω₀ = 1/√(LC) = 1/√(10⁻³ × 10⁻⁶) = 1/√(10⁻⁹) = 10⁴·⁵ ≈ 31,623 rad/s",
+              "f₀ = ω₀/(2π) ≈ 31623/6.283 ≈ 5033 Hz ≈ 5.03 kHz",
+              "Q = ω₀L/R = 31623 × 0.001 / 10 = 31.623/10 = 3.16",
+              "BW = ω₀/Q = 31623/3.16 = 10,000 rad/s"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "At resonance in a series RLC circuit, what happens to the current?",
+              "options": ["It reaches minimum", "It reaches maximum", "It becomes zero", "It becomes infinite"],
+              "correct": 1,
+              "explanation": "At resonance, Z = R (minimum impedance), so I = V/R is at maximum."
+            },
+            {
+              "id": "q02",
+              "question": "A series RLC circuit has L = 10 mH and C = 10 μF. What is ω₀?",
+              "options": ["1000 rad/s", "3162 rad/s", "100 rad/s", "10000 rad/s"],
+              "correct": 0,
+              "explanation": "ω₀ = 1/√(LC) = 1/√(10⁻² × 10⁻⁵) = 1/√(10⁻⁷) = 1/(3.16×10⁻⁴) = 3162... wait. 1/√(10⁻² × 10⁻⁵) = 1/√(10⁻⁷) ≈ 3162. Actually let me recalculate: 10 mH = 0.01 H, 10 μF = 10⁻⁵ F. LC = 0.01 × 10⁻⁵ = 10⁻⁷. √(10⁻⁷) ≈ 3.16×10⁻⁴. ω₀ = 1/(3.16×10⁻⁴) ≈ 3162 rad/s. Closest answer is 3162. Correction: answer should be index 1.",
+              "correct": 1,
+              "explanation": "ω₀ = 1/√(LC) = 1/√(0.01 × 10⁻⁵) = 1/√(10⁻⁷) ≈ 3162 rad/s"
+            },
+            {
+              "id": "q03",
+              "question": "A higher Q factor means:",
+              "options": ["Wider bandwidth, less selective", "Narrower bandwidth, more selective", "Lower resonant frequency", "Higher resistance"],
+              "correct": 1,
+              "explanation": "Q = ω₀/BW. A higher Q means smaller bandwidth — the circuit is more selective (sharper resonance peak)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod-05",
+      "title": "Semiconductors & Diodes",
+      "order": 5,
+      "lessons": [
+        {
+          "id": "les-05-01",
+          "title": "Semiconductor Basics",
+          "order": 1,
+          "content": "Semiconductors such as silicon (Si) have conductivity between conductors and insulators, and this conductivity can be precisely controlled by adding impurities — a process called doping. N-type semiconductors are doped with pentavalent atoms (e.g., phosphorus), providing extra electrons as majority carriers. P-type semiconductors use trivalent atoms (e.g., boron), creating holes (absence of electrons) as majority carriers. The p-n junction, formed where p-type and n-type regions meet, is the foundation of all semiconductor devices. Diffusion of carriers across the junction creates a depletion region and a built-in potential barrier (~0.7 V for silicon). This barrier is the basis of diode behavior and transistor operation.",
+          "formulas": [
+            { "label": "Intrinsic carrier concentration", "latex": "n_i^2 = n * p", "units": "carriers/cm³" },
+            { "label": "Built-in potential (Si)", "latex": "V_bi ≈ 0.6 to 0.7 V", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "Explain why silicon is preferred over germanium for most modern semiconductor devices.",
+            "solution": "Silicon has a higher built-in junction potential (~0.7 V vs ~0.3 V), better thermal stability (lower leakage current at high temperatures), a native oxide (SiO₂) useful for insulation, and is the most abundant semiconductor material.",
+            "steps": [
+              "Si bandgap: 1.12 eV (higher than Ge: 0.66 eV)",
+              "Higher bandgap → lower intrinsic carrier concentration at room temperature",
+              "Lower leakage current and better high-temperature operation",
+              "SiO₂ forms naturally — excellent insulator for MOS devices",
+              "Silicon is the second most abundant element in Earth's crust"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "N-type semiconductor doping introduces:",
+              "options": ["Holes as majority carriers", "Electrons as majority carriers", "Equal electrons and holes", "No change to conductivity"],
+              "correct": 1,
+              "explanation": "N-type doping uses pentavalent donor atoms, providing extra free electrons as majority carriers."
+            },
+            {
+              "id": "q02",
+              "question": "The depletion region in a p-n junction forms because:",
+              "options": ["External voltage is applied", "Electrons and holes diffuse and recombine near the junction", "The silicon is heated", "Current flows continuously"],
+              "correct": 1,
+              "explanation": "Without any external bias, electrons from the n-side diffuse toward the p-side and recombine with holes, leaving behind ionized dopant atoms — creating the depletion region."
+            },
+            {
+              "id": "q03",
+              "question": "The approximate forward voltage drop of a silicon p-n junction is:",
+              "options": ["0.3 V", "0.7 V", "1.2 V", "5 V"],
+              "correct": 1,
+              "explanation": "Silicon p-n junctions have a forward voltage drop of approximately 0.6–0.7 V, due to the built-in potential barrier."
+            }
+          ]
+        },
+        {
+          "id": "les-05-02",
+          "title": "Diodes & Rectifier Circuits",
+          "order": 2,
+          "content": "A diode is a two-terminal semiconductor device that ideally allows current in only one direction. In forward bias (anode more positive than cathode), current flows once the forward voltage exceeds the threshold (~0.7 V for Si). In reverse bias, only a tiny leakage current flows — until breakdown voltage, where current suddenly increases. The ideal diode model treats forward voltage as zero and reverse current as zero. The practical model adds a 0.7 V drop in forward bias. The Shockley diode equation describes the complete I-V characteristic exponentially. Key applications: rectification (converting AC to DC), clipping, clamping, and voltage regulation (Zener diodes). A half-wave rectifier uses one diode; a full-wave bridge rectifier uses four diodes to utilize both half-cycles of AC.",
+          "formulas": [
+            { "label": "Shockley equation", "latex": "I = I_s * (e^(V/V_T) - 1)", "units": "Amperes (A)" },
+            { "label": "Thermal voltage (room temp)", "latex": "V_T = kT/q ≈ 26 mV", "units": "Millivolts (mV)" },
+            { "label": "Half-wave rectifier Vdc", "latex": "V_dc = Vm / pi", "units": "Volts (V)" },
+            { "label": "Full-wave bridge Vdc", "latex": "V_dc = 2*Vm / pi", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "A full-wave bridge rectifier is fed by a transformer with peak secondary voltage of 20 V. Using the practical diode model (0.7 V drop), find the DC output voltage.",
+            "solution": "In each half-cycle, two diodes conduct: total drop = 2 × 0.7 = 1.4 V. Peak output = 20 - 1.4 = 18.6 V. V_dc = 2 × 18.6/π ≈ 11.84 V.",
+            "steps": [
+              "Peak transformer secondary voltage: Vm = 20 V",
+              "Bridge rectifier: two diodes conduct at a time → 2 × 0.7 V = 1.4 V total drop",
+              "Effective peak output: 20 - 1.4 = 18.6 V",
+              "Average DC for full-wave: V_dc = 2 × Vm_eff / π = 2 × 18.6 / 3.14159 ≈ 11.84 V"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "In forward bias, a silicon diode has approximately:",
+              "options": ["0 V drop", "0.3 V drop", "0.7 V drop", "1.4 V drop"],
+              "correct": 2,
+              "explanation": "Silicon diodes have a forward voltage drop of approximately 0.7 V in normal operation."
+            },
+            {
+              "id": "q02",
+              "question": "A half-wave rectifier with Vm = 10 V (ideal diodes) produces a DC average of:",
+              "options": ["10 V", "6.37 V", "3.18 V", "7.07 V"],
+              "correct": 2,
+              "explanation": "V_dc = Vm/π = 10/3.14159 ≈ 3.18 V for a half-wave rectifier."
+            },
+            {
+              "id": "q03",
+              "question": "A Zener diode is primarily used for:",
+              "options": ["Rectification", "Voltage regulation", "Signal amplification", "Frequency multiplication"],
+              "correct": 1,
+              "explanation": "Zener diodes operate in reverse breakdown at a precise voltage, making them ideal for voltage regulation and reference circuits."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod-06",
+      "title": "Transistors",
+      "order": 6,
+      "lessons": [
+        {
+          "id": "les-06-01",
+          "title": "BJT Operation & Biasing",
+          "order": 1,
+          "content": "The Bipolar Junction Transistor (BJT) is a three-terminal device (base, collector, emitter) that amplifies or switches currents. In an NPN BJT, a small base current (I_B) controls a much larger collector current (I_C), with the relationship I_C = β × I_B, where β (also called h_FE or h_fe) is the current gain, typically 50–300. The transistor has three regions: cutoff (no current flows, switch open), active (amplification, I_C = β × I_B), and saturation (fully on, switch closed). For amplifier designs, the transistor must be DC biased in the active region. The voltage divider bias network is the most stable biasing scheme — it sets the base voltage independently of β variations. The emitter follower (common-collector) configuration provides high input impedance and low output impedance, acting as a buffer.",
+          "formulas": [
+            { "label": "Collector current", "latex": "I_C = beta * I_B", "units": "Amperes (A)" },
+            { "label": "KCL at emitter", "latex": "I_E = I_C + I_B = (beta+1) * I_B", "units": "Amperes (A)" },
+            { "label": "VCE saturation (approx)", "latex": "V_CE(sat) ≈ 0.2 V", "units": "Volts (V)" },
+            { "label": "VBE forward bias (Si)", "latex": "V_BE ≈ 0.7 V", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "An NPN BJT has β = 100 and V_BE = 0.7 V. It's connected with a base resistor R_B = 10 kΩ from a 5 V supply. Find I_B, I_C, and I_E.",
+            "solution": "V_RB = 5 - 0.7 = 4.3 V. I_B = 4.3/10,000 = 0.43 mA. I_C = 100 × 0.43 = 43 mA. I_E = 43.43 mA.",
+            "steps": [
+              "Voltage across R_B: V_RB = V_CC - V_BE = 5 - 0.7 = 4.3 V",
+              "Base current: I_B = V_RB / R_B = 4.3/10,000 = 0.43 mA",
+              "Collector current: I_C = β × I_B = 100 × 0.43 mA = 43 mA",
+              "Emitter current: I_E = I_C + I_B = 43 + 0.43 = 43.43 mA"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "In the active region of an NPN BJT:",
+              "options": ["Both junctions are forward-biased", "Base-emitter is forward-biased, base-collector is reverse-biased", "Both junctions are reverse-biased", "Only the collector junction is biased"],
+              "correct": 1,
+              "explanation": "In the active (linear) region: B-E junction is forward-biased (V_BE ≈ 0.7 V) and B-C junction is reverse-biased."
+            },
+            {
+              "id": "q02",
+              "question": "A BJT with β = 150 has I_B = 20 μA. What is I_C?",
+              "options": ["3 mA", "0.13 mA", "150 μA", "130 μA"],
+              "correct": 0,
+              "explanation": "I_C = β × I_B = 150 × 20×10⁻⁶ = 3000 μA = 3 mA"
+            },
+            {
+              "id": "q03",
+              "question": "In the saturation region, the BJT acts as:",
+              "options": ["An open switch", "A closed switch (low V_CE)", "A linear amplifier", "A current source"],
+              "correct": 1,
+              "explanation": "In saturation, V_CE ≈ 0.2 V and the transistor acts like a closed switch — used in digital logic and switching power supplies."
+            }
+          ]
+        },
+        {
+          "id": "les-06-02",
+          "title": "MOSFETs",
+          "order": 2,
+          "content": "The Metal-Oxide-Semiconductor Field-Effect Transistor (MOSFET) is the dominant transistor in modern electronics, forming the basis of all digital logic ICs. Unlike the BJT (current-controlled), the MOSFET is voltage-controlled: the gate voltage relative to source (V_GS) controls the drain current (I_D) with virtually no gate current. In an N-channel enhancement MOSFET, applying V_GS above the threshold voltage (V_th, typically 1–3 V) creates an inversion layer (channel) between drain and source, allowing current to flow. MOSFETs have three regions: cutoff (V_GS < V_th, no current), triode/linear (fully on, low R_DS), and saturation (amplification region, I_D = (K/2)(V_GS - V_th)²). CMOS (complementary MOS) technology pairs N-channel and P-channel MOSFETs to build logic gates that consume power only during switching.",
+          "formulas": [
+            { "label": "Saturation current", "latex": "I_D = (K/2) * (V_GS - V_th)^2", "units": "Amperes (A)" },
+            { "label": "Triode region current", "latex": "I_D = K * ((V_GS - V_th)*V_DS - V_DS^2/2)", "units": "Amperes (A)" },
+            { "label": "Threshold condition", "latex": "V_GS > V_th for N-channel enhancement", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "An N-channel MOSFET has K = 2 mA/V², V_th = 1.5 V. Find I_D when V_GS = 3 V in saturation.",
+            "solution": "I_D = (K/2)(V_GS - V_th)² = (0.002/2)(3 - 1.5)² = 0.001 × 2.25 = 2.25 mA.",
+            "steps": [
+              "V_GS - V_th = 3 - 1.5 = 1.5 V (device is on, assuming saturation)",
+              "I_D = (K/2) × (V_GS - V_th)²",
+              "I_D = (0.002/2) × (1.5)² = 0.001 × 2.25 = 2.25 mA"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "What controls the drain current in a MOSFET?",
+              "options": ["Base current", "Gate-source voltage (V_GS)", "Drain-source voltage only", "Source current"],
+              "correct": 1,
+              "explanation": "The MOSFET is voltage-controlled: V_GS controls I_D. The gate current is essentially zero."
+            },
+            {
+              "id": "q02",
+              "question": "CMOS logic gates consume significant power only:",
+              "options": ["When powered on", "When the output is high", "During switching transitions", "When gate voltage equals V_th"],
+              "correct": 2,
+              "explanation": "CMOS draws power primarily during switching. In static states (output high or low), one of the two complementary MOSFETs is off, so no DC path from VDD to GND exists."
+            },
+            {
+              "id": "q03",
+              "question": "An N-channel enhancement MOSFET with V_th = 2 V will be 'OFF' (cutoff) when V_GS is:",
+              "options": ["3 V", "5 V", "1.5 V", "2.5 V"],
+              "correct": 2,
+              "explanation": "For an N-channel enhancement MOSFET, V_GS must exceed V_th to turn on. V_GS = 1.5 V < 2 V means the device is in cutoff."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod-07",
+      "title": "Operational Amplifiers",
+      "order": 7,
+      "lessons": [
+        {
+          "id": "les-07-01",
+          "title": "Ideal Op-Amp & Inverting Amplifier",
+          "order": 1,
+          "content": "An operational amplifier (op-amp) is a high-gain differential voltage amplifier. The ideal op-amp has infinite open-loop gain (A → ∞), infinite input impedance (no current into inputs), zero output impedance, and infinite bandwidth. In negative feedback configurations (output fed back to inverting input), two golden rules apply: (1) The differential input voltage is virtually zero (V+ ≈ V-). (2) No current flows into either input terminal. These rules make analysis of op-amp circuits straightforward. The inverting amplifier applies input to the inverting (-) terminal through R1, with feedback resistor Rf. The gain is -Rf/R1 (negative sign indicates phase inversion). The non-inverting amplifier applies input to the (+) terminal, with gain = 1 + Rf/R1.",
+          "formulas": [
+            { "label": "Inverting amp gain", "latex": "A_v = -Rf / R1", "units": "V/V (dimensionless)" },
+            { "label": "Non-inverting amp gain", "latex": "A_v = 1 + Rf / R1", "units": "V/V (dimensionless)" },
+            { "label": "Virtual short rule", "latex": "V+ ≈ V- (in negative feedback)", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "Design an inverting amplifier with gain of -10 using a 1 kΩ input resistor. What feedback resistor is needed? Find Vout for Vin = 0.5 V.",
+            "solution": "Rf = |gain| × R1 = 10 × 1000 = 10 kΩ. Vout = -10 × 0.5 = -5 V.",
+            "steps": [
+              "Desired gain: A_v = -Rf/R1 = -10",
+              "R1 = 1 kΩ → Rf = 10 × 1000 = 10,000 Ω = 10 kΩ",
+              "Vout = A_v × Vin = -10 × 0.5 = -5 V (inverted and amplified)"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "In an ideal op-amp with negative feedback, the voltage at the two input terminals:",
+              "options": ["Are always equal to VCC/2", "Are virtually equal to each other", "Are always different", "Equal the output voltage"],
+              "correct": 1,
+              "explanation": "With negative feedback and infinite gain, the op-amp drives V+ ≈ V- (virtual short)."
+            },
+            {
+              "id": "q02",
+              "question": "An inverting amplifier has R1 = 2 kΩ and Rf = 20 kΩ. What is the voltage gain?",
+              "options": ["+10", "-10", "+0.1", "-0.1"],
+              "correct": 1,
+              "explanation": "A_v = -Rf/R1 = -20k/2k = -10"
+            },
+            {
+              "id": "q03",
+              "question": "A non-inverting amplifier has R1 = 1 kΩ and Rf = 4 kΩ. What is the gain?",
+              "options": ["-4", "+4", "+5", "-5"],
+              "correct": 2,
+              "explanation": "A_v = 1 + Rf/R1 = 1 + 4 = 5"
+            }
+          ]
+        },
+        {
+          "id": "les-07-02",
+          "title": "Op-Amp Integrator & Differentiator",
+          "order": 2,
+          "content": "By replacing the feedback or input resistor with a capacitor, op-amps perform mathematical integration and differentiation. In an integrator, the feedback element is a capacitor C and the input element is R. The output is Vout = -(1/RC) × ∫Vin dt — the output is proportional to the integral of the input. A DC input produces a linearly ramping output (voltage ramp). In a differentiator, the input element is C and the feedback is R. The output is Vout = -RC × dVin/dt — proportional to the rate of change of the input. Differentiators amplify noise (high-frequency components have large derivatives), so practical designs add a small series resistor to limit high-frequency gain. These circuits are fundamental in analog computing, waveform generation, and control systems.",
+          "formulas": [
+            { "label": "Integrator output", "latex": "Vout = -(1/(RC)) * integral(Vin dt)", "units": "Volts (V)" },
+            { "label": "Differentiator output", "latex": "Vout = -RC * dVin/dt", "units": "Volts (V)" }
+          ],
+          "workedExample": {
+            "problem": "An op-amp integrator has R = 10 kΩ and C = 1 μF. A DC input of 1 V is applied. How long before the output reaches -5 V (assuming it starts at 0 V)?",
+            "solution": "Vout = -(1/RC) × Vin × t. -5 = -(1/(10,000 × 10⁻⁶)) × 1 × t = -100 × t. t = 50 ms.",
+            "steps": [
+              "RC = 10,000 × 10⁻⁶ = 0.01 s",
+              "1/RC = 100 s⁻¹",
+              "Vout = -(1/RC) × Vin × t = -100 × 1 × t",
+              "Set Vout = -5 V: -5 = -100t → t = 0.05 s = 50 ms"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "In an op-amp integrator, which component is in the feedback path?",
+              "options": ["Resistor", "Capacitor", "Inductor", "Diode"],
+              "correct": 1,
+              "explanation": "The integrator has a capacitor as the feedback element (from output to inverting input), with a resistor at the input."
+            },
+            {
+              "id": "q02",
+              "question": "A differentiator circuit amplifies which component of the input signal most?",
+              "options": ["DC components", "Low-frequency components", "High-frequency components", "The average value"],
+              "correct": 2,
+              "explanation": "dV/dt is larger for fast-changing (high-frequency) signals. The differentiator acts as a high-pass filter, amplifying high frequencies."
+            },
+            {
+              "id": "q03",
+              "question": "An integrator with R = 10 kΩ, C = 100 nF has a square wave input. The output waveform is:",
+              "options": ["A square wave", "A triangular wave", "A sine wave", "A pulse train"],
+              "correct": 1,
+              "explanation": "Integrating a square wave (constant positive/negative values alternating) produces a linearly rising/falling triangular wave."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod-08",
+      "title": "Digital Electronics",
+      "order": 8,
+      "lessons": [
+        {
+          "id": "les-08-01",
+          "title": "Binary Numbers & Logic Levels",
+          "order": 1,
+          "content": "Digital circuits operate on discrete voltage levels representing binary states: 0 (LOW) and 1 (HIGH). In standard TTL (Transistor-Transistor Logic), LOW is 0–0.8 V and HIGH is 2–5 V; in CMOS operating at 3.3 V, thresholds differ. Binary numbers use base-2: each position represents a power of 2 (1, 2, 4, 8, 16...). Converting between binary and decimal is fundamental: binary 1011 = 1×8 + 0×4 + 1×2 + 1×1 = 11 in decimal. Hexadecimal (base-16) provides a compact notation — four binary bits map to one hex digit. Two's complement is the standard representation for signed integers in digital systems: the most significant bit (MSB) carries a negative weight.",
+          "formulas": [
+            { "label": "Binary to decimal", "latex": "N = sum(b_i * 2^i)", "units": "Decimal integer" },
+            { "label": "n-bit range (unsigned)", "latex": "0 to 2^n - 1", "units": "Integer values" },
+            { "label": "n-bit range (2's complement)", "latex": "-2^(n-1) to 2^(n-1) - 1", "units": "Integer values" }
+          ],
+          "workedExample": {
+            "problem": "Convert (a) binary 11010110 to decimal and hex, and (b) decimal 47 to binary.",
+            "solution": "(a) 11010110 = 128+64+0+16+0+4+2+0 = 214 decimal = 0xD6. (b) 47 = 32+8+4+2+1 = 101111 binary.",
+            "steps": [
+              "11010110: 1×128 + 1×64 + 0×32 + 1×16 + 0×8 + 1×4 + 1×2 + 0×1",
+              "= 128 + 64 + 16 + 4 + 2 = 214 decimal",
+              "Hex: split into nibbles: 1101 = D, 0110 = 6 → 0xD6",
+              "Decimal 47 to binary: 47/2=23r1, 23/2=11r1, 11/2=5r1, 5/2=2r1, 2/2=1r0, 1/2=0r1",
+              "Reading remainders bottom-up: 101111"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "What is binary 1010 in decimal?",
+              "options": ["8", "10", "12", "5"],
+              "correct": 1,
+              "explanation": "1010 = 1×8 + 0×4 + 1×2 + 0×1 = 8 + 2 = 10"
+            },
+            {
+              "id": "q02",
+              "question": "How many values can a 4-bit unsigned binary number represent?",
+              "options": ["8", "15", "16", "4"],
+              "correct": 2,
+              "explanation": "A 4-bit number can represent 2⁴ = 16 different values (0 through 15)."
+            },
+            {
+              "id": "q03",
+              "question": "In hexadecimal, what decimal value does 0xFF represent?",
+              "options": ["15", "255", "256", "127"],
+              "correct": 1,
+              "explanation": "0xFF = 15×16 + 15×1 = 240 + 15 = 255. Or 8 ones in binary = 2⁸ - 1 = 255."
+            }
+          ]
+        },
+        {
+          "id": "les-08-02",
+          "title": "Logic Gates & Boolean Algebra",
+          "order": 2,
+          "content": "Logic gates are the building blocks of digital circuits, implementing Boolean operations on binary inputs. The fundamental gates are: AND (output is 1 only if all inputs are 1), OR (output is 1 if any input is 1), NOT (inverts the input), NAND, NOR, XOR (exclusive-OR: output 1 when inputs differ), and XNOR. De Morgan's theorems are essential for simplification: ¬(A·B) = ¬A + ¬B, and ¬(A+B) = ¬A·¬B. NAND and NOR gates are universal — any Boolean function can be built using only NAND gates (or only NOR gates). Boolean algebra rules (identity, null, idempotent, complement, absorption, distributive) allow circuit minimization. Karnaugh maps (K-maps) provide a visual method to minimize Boolean expressions, reducing the number of gates needed.",
+          "formulas": [
+            { "label": "AND", "latex": "F = A AND B = A * B", "units": "Boolean" },
+            { "label": "OR", "latex": "F = A OR B = A + B", "units": "Boolean" },
+            { "label": "NOT", "latex": "F = NOT A = A_bar", "units": "Boolean" },
+            { "label": "De Morgan (1)", "latex": "NOT(A AND B) = NOT_A OR NOT_B", "units": "Boolean" },
+            { "label": "De Morgan (2)", "latex": "NOT(A OR B) = NOT_A AND NOT_B", "units": "Boolean" }
+          ],
+          "workedExample": {
+            "problem": "Simplify the Boolean expression F = A·B + A·¬B using Boolean algebra.",
+            "solution": "F = A·B + A·¬B = A·(B + ¬B) = A·1 = A",
+            "steps": [
+              "Factor out A: F = A(B + ¬B)",
+              "Apply complement law: B + ¬B = 1",
+              "F = A × 1 = A",
+              "Result: the output equals A, regardless of B"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "What is the output of a 2-input NAND gate when both inputs are HIGH (1)?",
+              "options": ["1", "0", "Undefined", "Depends on voltage"],
+              "correct": 1,
+              "explanation": "NAND = NOT AND. AND(1,1) = 1. NOT(1) = 0."
+            },
+            {
+              "id": "q02",
+              "question": "De Morgan's theorem states that NOT(A AND B) equals:",
+              "options": ["NOT_A AND NOT_B", "NOT_A OR NOT_B", "A OR B", "NOT_A + B"],
+              "correct": 1,
+              "explanation": "De Morgan: NOT(A·B) = NOT_A + NOT_B (AND becomes OR, inputs are complemented)."
+            },
+            {
+              "id": "q03",
+              "question": "An XOR gate outputs 1 when:",
+              "options": ["Both inputs are 1", "Both inputs are 0", "Inputs are different", "At least one input is 1"],
+              "correct": 2,
+              "explanation": "XOR (exclusive-OR) outputs 1 only when inputs differ: (0,1) or (1,0)."
+            }
+          ]
+        },
+        {
+          "id": "les-08-03",
+          "title": "Flip-Flops & Sequential Logic",
+          "order": 3,
+          "content": "Combinational circuits produce outputs based solely on current inputs. Sequential circuits add memory: outputs depend on both current inputs and previous state (stored in flip-flops). The D flip-flop (data or delay) captures the value at its D input on the rising edge of the clock (CLK), storing it until the next clock edge. This is the fundamental memory element in digital systems. The SR flip-flop has Set and Reset inputs; the JK flip-flop extends SR to allow toggle operation. Registers (arrays of D flip-flops sharing a clock) store multi-bit values. Counters are cascaded flip-flops that count clock pulses — ripple counters (asynchronous) vs. synchronous counters (all flip-flops clocked simultaneously). Finite State Machines (FSMs) use flip-flops plus combinational logic to implement sequential behavior, forming the basis of CPUs, protocol parsers, and controllers.",
+          "formulas": [
+            { "label": "D flip-flop", "latex": "Q(next) = D (on rising clock edge)", "units": "Binary state" },
+            { "label": "SR flip-flop", "latex": "Q(next): S=1,R=0 → Q=1; S=0,R=1 → Q=0; S=0,R=0 → hold", "units": "Binary state" },
+            { "label": "n-bit counter range", "latex": "Counts 0 to 2^n - 1", "units": "States" }
+          ],
+          "workedExample": {
+            "problem": "A 4-bit synchronous binary counter starts at 0000. After 12 clock pulses, what is its state in binary and decimal?",
+            "solution": "A 4-bit counter counts 0–15, then wraps. After 12 pulses: state = 12 = 1100 binary.",
+            "steps": [
+              "4-bit counter: counts 0000 to 1111 (0 to 15)",
+              "After 12 clock pulses: binary 1100",
+              "Verify: 1100 = 1×8 + 1×4 + 0×2 + 0×1 = 12 decimal",
+              "The counter has not yet wrapped (12 < 16)"
+            ]
+          },
+          "quiz": [
+            {
+              "id": "q01",
+              "question": "A D flip-flop captures its input:",
+              "options": ["Continuously", "On the rising edge of the clock", "When D changes value", "When power is applied"],
+              "correct": 1,
+              "explanation": "A D flip-flop samples and stores the D input value on the rising (or sometimes falling) clock edge."
+            },
+            {
+              "id": "q02",
+              "question": "A 3-bit binary counter can count how many distinct states?",
+              "options": ["3", "6", "7", "8"],
+              "correct": 3,
+              "explanation": "A 3-bit counter has 2³ = 8 states (000 through 111 = 0 through 7)."
+            },
+            {
+              "id": "q03",
+              "question": "The difference between combinational and sequential logic is:",
+              "options": ["Sequential uses more transistors", "Sequential logic has memory (state); combinational does not", "Combinational uses flip-flops", "Sequential logic is always faster"],
+              "correct": 1,
+              "explanation": "Sequential logic stores state (using flip-flops), so outputs depend on past inputs as well as current ones. Combinational logic has no memory."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

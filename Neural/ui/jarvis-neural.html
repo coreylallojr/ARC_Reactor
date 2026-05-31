@@ -256,6 +256,79 @@ hr.d { border:none; border-top:1px solid rgba(0,150,255,.12); margin:6px 0; }
 #memory-search-row { display:flex; gap:8px; margin-bottom:14px; max-width:500px; }
 #memory-search { flex:1; background:rgba(0,10,28,.7); border:1px solid rgba(0,100,180,.25); color:#aaeeff; font-family:'Courier New',monospace; font-size:11px; padding:6px 10px; outline:none; }
 #memory-search:focus { border-color:rgba(0,200,255,.5); }
+
+/* ── Course panel ────────────────────────────────────────────────────────────── */
+#panel-course { overflow:hidden; }
+.course-layout { display:grid; grid-template-columns:280px 1fr; height:100%; }
+
+.course-sidebar { border-right:1px solid rgba(0,100,180,.18); display:flex; flex-direction:column; overflow:hidden; }
+.course-sidebar-header { padding:14px 16px 10px; font-size:8px; letter-spacing:.3em; color:rgba(0,160,220,.4); text-transform:uppercase; border-bottom:1px solid rgba(0,100,160,.12); flex-shrink:0; }
+.course-progress-bar-wrap { padding:8px 16px 12px; flex-shrink:0; border-bottom:1px solid rgba(0,100,160,.1); }
+.course-progress-label { display:flex; justify-content:space-between; font-size:8px; letter-spacing:.15em; color:rgba(0,140,200,.5); margin-bottom:5px; }
+.course-progress-track { height:3px; background:rgba(0,40,80,.6); border:1px solid rgba(0,80,140,.2); }
+.course-progress-fill { height:100%; background:rgba(0,200,255,.6); transition:width .4s ease; box-shadow:0 0 8px rgba(0,200,255,.4); }
+.course-tree { flex:1; overflow-y:auto; padding:8px 0; scrollbar-width:thin; scrollbar-color:rgba(0,100,180,.2) transparent; }
+.course-tree::-webkit-scrollbar { width:3px; }
+.course-tree::-webkit-scrollbar-thumb { background:rgba(0,100,180,.25); border-radius:2px; }
+.course-module-header { padding:8px 16px 6px; font-size:9px; letter-spacing:.2em; color:rgba(0,170,230,.6); text-transform:uppercase; display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; }
+.course-module-header:hover { color:rgba(0,210,255,.8); }
+.module-chevron { font-size:7px; color:rgba(0,140,200,.4); transition:transform .15s; display:inline-block; }
+.module-chevron.open { transform:rotate(90deg); }
+.module-prog-badge { margin-left:auto; font-size:8px; letter-spacing:.1em; color:rgba(0,160,200,.45); }
+.module-prog-badge.complete { color:rgba(0,255,180,.6); }
+.course-lesson-item { padding:5px 16px 5px 28px; font-size:10px; letter-spacing:.08em; color:rgba(0,140,200,.55); cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:8px; }
+.course-lesson-item:hover { color:#88d8ff; background:rgba(0,30,60,.4); }
+.course-lesson-item.active { color:#aaeeff; background:rgba(0,30,70,.55); border-left:2px solid rgba(0,200,255,.6); padding-left:26px; }
+.lesson-check { width:8px; height:8px; border:1px solid rgba(0,100,160,.3); border-radius:50%; flex-shrink:0; transition:all .2s; }
+.lesson-check.done { background:rgba(0,200,255,.5); border-color:rgba(0,200,255,.6); box-shadow:0 0 6px rgba(0,180,255,.4); }
+
+.course-content { display:flex; flex-direction:column; overflow:hidden; }
+.course-content-scroll { flex:1; overflow-y:auto; padding:24px 32px; scrollbar-width:thin; scrollbar-color:rgba(0,100,180,.2) transparent; }
+.course-content-scroll::-webkit-scrollbar { width:4px; }
+.course-content-scroll::-webkit-scrollbar-thumb { background:rgba(0,100,180,.25); border-radius:2px; }
+.course-lesson-title { font-size:18px; letter-spacing:.1em; color:#aaeeff; margin-bottom:4px; text-shadow:0 0 20px rgba(0,180,255,.3); }
+.course-module-label { font-size:8px; letter-spacing:.3em; color:rgba(0,140,200,.4); text-transform:uppercase; margin-bottom:20px; }
+.course-text { font-size:12px; line-height:1.8; color:rgba(180,230,255,.8); margin-bottom:24px; max-width:820px; }
+.course-section-title { font-size:8px; letter-spacing:.35em; color:rgba(0,160,220,.5); text-transform:uppercase; margin-bottom:10px; border-bottom:1px solid rgba(0,100,160,.15); padding-bottom:6px; }
+
+.formula-grid { display:flex; flex-direction:column; gap:8px; margin-bottom:24px; max-width:640px; }
+.formula-card { background:rgba(0,8,22,.7); border:1px solid rgba(0,100,180,.2); padding:10px 16px; display:flex; align-items:center; gap:16px; }
+.formula-label { font-size:9px; letter-spacing:.2em; color:rgba(0,140,200,.5); text-transform:uppercase; min-width:120px; flex-shrink:0; }
+.formula-expr { font-size:13px; color:#66d8ff; font-family:'Courier New',monospace; letter-spacing:.06em; flex:1; }
+.formula-units { font-size:9px; color:rgba(0,140,200,.4); text-align:right; }
+
+.worked-example { background:rgba(0,6,18,.8); border:1px solid rgba(0,120,200,.2); border-left:3px solid rgba(0,180,255,.4); padding:16px 20px; margin-bottom:24px; max-width:820px; }
+.example-problem { font-size:11px; color:rgba(200,235,255,.8); margin-bottom:12px; }
+.example-solution { font-size:13px; color:#aaeeff; font-family:'Courier New',monospace; margin-bottom:10px; letter-spacing:.04em; }
+.example-steps { display:flex; flex-direction:column; gap:4px; counter-reset:step-counter; }
+.example-step { font-size:10px; color:rgba(0,160,210,.6); padding-left:12px; border-left:1px solid rgba(0,100,160,.2); }
+.example-step::before { content:counter(step-counter) '. '; counter-increment:step-counter; color:rgba(0,120,180,.5); }
+
+.course-quiz { flex-shrink:0; border-top:1px solid rgba(0,100,160,.18); background:rgba(0,4,14,.95); padding:20px 32px; max-height:340px; overflow-y:auto; }
+.quiz-header { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+.quiz-title { font-size:8px; letter-spacing:.35em; color:rgba(0,160,220,.5); text-transform:uppercase; }
+.quiz-score-badge { font-size:9px; letter-spacing:.15em; padding:2px 10px; border:1px solid rgba(0,200,255,.3); color:rgba(0,200,255,.6); display:none; }
+.quiz-score-badge.show { display:inline-block; }
+.quiz-score-badge.pass { border-color:rgba(0,255,180,.4); color:rgba(0,255,180,.7); }
+.quiz-score-badge.fail { border-color:rgba(255,160,60,.3); color:rgba(255,160,60,.6); }
+.quiz-questions { display:flex; flex-direction:column; gap:14px; }
+.quiz-question-block { display:flex; flex-direction:column; gap:6px; }
+.quiz-question { font-size:11px; color:rgba(200,230,255,.8); }
+.quiz-options { display:flex; flex-direction:column; gap:5px; }
+.quiz-option { background:rgba(0,10,28,.6); border:1px solid rgba(0,80,140,.2); color:rgba(0,150,210,.6); font-family:'Courier New',monospace; font-size:10px; padding:6px 12px; cursor:pointer; text-align:left; letter-spacing:.06em; transition:all .15s; }
+.quiz-option:hover:not(:disabled) { border-color:rgba(0,180,255,.4); color:#88d8ff; background:rgba(0,20,50,.7); }
+.quiz-option.selected { border-color:rgba(0,160,255,.5); color:#aaeeff; background:rgba(0,25,60,.7); }
+.quiz-option.correct { border-color:rgba(0,255,160,.5); color:rgba(0,255,160,.9); background:rgba(0,40,20,.5); }
+.quiz-option.wrong { border-color:rgba(255,80,60,.4); color:rgba(255,100,80,.7); background:rgba(40,5,0,.5); }
+.quiz-explanation { font-size:9px; color:rgba(0,160,210,.5); margin-top:6px; letter-spacing:.06em; padding-left:8px; border-left:2px solid rgba(0,120,180,.2); display:none; }
+.quiz-explanation.show { display:block; }
+.quiz-submit-row { margin-top:16px; display:flex; gap:10px; align-items:center; }
+#quiz-submit { background:rgba(0,30,70,.6); border:1px solid rgba(0,130,200,.3); color:#66ccff; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.2em; padding:6px 20px; cursor:pointer; text-transform:uppercase; transition:all .15s; }
+#quiz-submit:hover:not(:disabled) { border-color:rgba(0,200,255,.6); color:#aaeeff; }
+#quiz-submit:disabled { opacity:.35; cursor:not-allowed; }
+#quiz-next { background:rgba(0,50,110,.5); border:1px solid rgba(0,160,255,.3); color:#aaeeff; font-family:'Courier New',monospace; font-size:9px; letter-spacing:.2em; padding:6px 20px; cursor:pointer; text-transform:uppercase; display:none; transition:all .15s; }
+#quiz-next:hover { border-color:rgba(0,210,255,.6); background:rgba(0,60,140,.6); }
+.course-empty { display:flex; align-items:center; justify-content:center; height:100%; color:rgba(0,120,160,.35); font-size:10px; letter-spacing:.3em; }
 </style>
 </head>
 <body>
@@ -265,6 +338,7 @@ hr.d { border:none; border-top:1px solid rgba(0,150,255,.12); margin:6px 0; }
   <button id="tab-graph"   class="tab"         onclick="switchTab('graph')">GRAPH</button>
   <button id="tab-skills"  class="tab"         onclick="switchTab('skills')">SKILLS</button>
   <button id="tab-memory"  class="tab"         onclick="switchTab('memory')">MEMORY</button>
+  <button id="tab-course"  class="tab"         onclick="switchTab('course')">COURSE</button>
 </div>
 
 <div id="tt"><div class="m">J.A.R.V.I.S.</div><div class="s">NEURAL CORE</div></div>
@@ -396,6 +470,64 @@ hr.d { border:none; border-top:1px solid rgba(0,150,255,.12); margin:6px 0; }
         <div class="mem-col-title">Semantic Memory</div>
         <div id="mem-semantic" class="mem-col"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Course Panel ───────────────────────────────────────────────────────────── -->
+<div id="panel-course" class="tab-panel">
+  <div class="panel-header">
+    ELECTRICAL ENGINEERING &nbsp;·&nbsp; <span id="course-overall-progress">0% complete</span>
+    <button class="btn-sm" style="margin-left:auto" onclick="loadCourse()">REFRESH</button>
+  </div>
+  <div class="panel-body" style="padding:0; overflow:hidden;">
+    <div class="course-layout">
+
+      <!-- Sidebar: module/lesson tree -->
+      <div class="course-sidebar">
+        <div class="course-sidebar-header">Curriculum</div>
+        <div class="course-progress-bar-wrap">
+          <div class="course-progress-label">
+            <span>OVERALL PROGRESS</span>
+            <span id="course-progress-pct">0%</span>
+          </div>
+          <div class="course-progress-track">
+            <div id="course-progress-fill" class="course-progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div id="course-tree" class="course-tree">
+          <div class="course-empty">Loading curriculum…</div>
+        </div>
+      </div>
+
+      <!-- Right: lesson content + quiz -->
+      <div class="course-content">
+        <div id="course-content-scroll" class="course-content-scroll">
+          <div class="course-empty" id="course-placeholder">Select a lesson to begin.</div>
+          <div id="course-lesson-body" style="display:none">
+            <div id="course-lesson-title" class="course-lesson-title"></div>
+            <div id="course-module-label" class="course-module-label"></div>
+            <div class="course-section-title">Explanation</div>
+            <div id="course-text" class="course-text"></div>
+            <div class="course-section-title">Key Formulas</div>
+            <div id="course-formulas" class="formula-grid"></div>
+            <div class="course-section-title">Worked Example</div>
+            <div id="course-example" class="worked-example"></div>
+          </div>
+        </div>
+        <div id="course-quiz" class="course-quiz" style="display:none">
+          <div class="quiz-header">
+            <span class="quiz-title">Knowledge Check</span>
+            <span id="quiz-score-badge" class="quiz-score-badge"></span>
+          </div>
+          <div id="quiz-questions" class="quiz-questions"></div>
+          <div class="quiz-submit-row">
+            <button id="quiz-submit" onclick="submitQuiz()" disabled>SUBMIT</button>
+            <button id="quiz-next"   onclick="goNextLesson()">NEXT LESSON &#9654;</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1354,7 +1486,7 @@ function switchTab(name) {
   // Three.js canvas
   renderer.domElement.style.display = showNeural ? 'block' : 'none';
   // Tab panels
-  ['graph','skills','memory'].forEach(t => {
+  ['graph','skills','memory','course'].forEach(t => {
     const p = document.getElementById('panel-' + t);
     if (p) p.classList.toggle('visible', t === name);
   });
@@ -1362,6 +1494,7 @@ function switchTab(name) {
   if (name === 'graph')   loadGraph();
   if (name === 'skills')  loadSkills();
   if (name === 'memory')  loadMemory();
+  if (name === 'course')  loadCourse();
 }
 window.switchTab = switchTab;
 
@@ -1640,13 +1773,239 @@ function nameProposedSkill(pattern, cardEl) {
 }
 window.nameProposedSkill = nameProposedSkill;
 
-// Keyboard: G=graph, K=skills, N=neural, R=memory (existing shortcuts unchanged)
+// ── Course tab ────────────────────────────────────────────────────────────────
+let courseData         = null;
+let currentLesson      = null;
+let quizAnswers        = {};
+let quizSubmitted      = false;
+let _currentQuizCorrects = [];
+
+async function loadCourse() {
+  try {
+    const data = await (await fetch(`${API}/v1/courses`)).json();
+    if (!data.courses || data.courses.length === 0) {
+      document.getElementById('course-tree').innerHTML =
+        '<div class="course-empty">No course data found.</div>';
+      return;
+    }
+    courseData = data.courses[0];
+    renderCourseTree(courseData);
+    updateOverallProgress(courseData);
+  } catch {
+    document.getElementById('course-tree').innerHTML =
+      '<div class="course-empty">API unavailable — start JARVIS first.</div>';
+  }
+}
+window.loadCourse = loadCourse;
+
+function renderCourseTree(course) {
+  const tree = document.getElementById('course-tree');
+  tree.innerHTML = course.modules.map(mod => {
+    const allDone  = mod.completedLessons === mod.totalLessons && mod.totalLessons > 0;
+    const pctLabel = `${mod.completedLessons}/${mod.totalLessons}`;
+    const lessons  = mod.lessons.map(l => {
+      const isActive = currentLesson && currentLesson.lessonId === l.id;
+      return `<div class="course-lesson-item${isActive ? ' active' : ''}"
+        onclick="openLesson('${escapeHtml(course.id)}','${escapeHtml(l.id)}')">
+        <div class="lesson-check${l.completed ? ' done' : ''}"></div>
+        ${escapeHtml(l.title)}
+      </div>`;
+    }).join('');
+    return `<div class="course-module-section">
+      <div class="course-module-header" onclick="toggleModule('${escapeHtml(mod.id)}')">
+        <span class="module-chevron open">&#9658;</span>
+        ${escapeHtml(mod.title)}
+        <span class="module-prog-badge${allDone ? ' complete' : ''}">${pctLabel}</span>
+      </div>
+      <div id="modlessons-${escapeHtml(mod.id)}">${lessons}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleModule(modId) {
+  const lessonsEl = document.getElementById(`modlessons-${modId}`);
+  if (!lessonsEl) return;
+  const header  = lessonsEl.previousElementSibling;
+  const chevron = header ? header.querySelector('.module-chevron') : null;
+  const isOpen  = lessonsEl.style.display !== 'none';
+  lessonsEl.style.display = isOpen ? 'none' : '';
+  if (chevron) chevron.classList.toggle('open', !isOpen);
+}
+window.toggleModule = toggleModule;
+
+function updateOverallProgress(course) {
+  let total = 0, done = 0;
+  course.modules.forEach(m => { total += m.totalLessons; done += m.completedLessons; });
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('course-overall-progress').textContent = `${pct}% complete`;
+  document.getElementById('course-progress-pct').textContent     = `${pct}%`;
+  document.getElementById('course-progress-fill').style.width    = `${pct}%`;
+}
+
+async function openLesson(courseId, lessonId) {
+  currentLesson = { courseId, lessonId };
+  // Highlight active item in tree
+  document.querySelectorAll('.course-lesson-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.course-lesson-item').forEach(el => {
+    const oc = el.getAttribute('onclick') || '';
+    if (oc.includes(`'${lessonId}'`)) el.classList.add('active');
+  });
+
+  let lesson;
+  try {
+    lesson = await (await fetch(
+      `${API}/v1/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(lessonId)}`
+    )).json();
+  } catch { return; }
+
+  document.getElementById('course-placeholder').style.display   = 'none';
+  document.getElementById('course-lesson-body').style.display   = 'block';
+  document.getElementById('course-lesson-title').textContent    = lesson.title || '';
+  document.getElementById('course-module-label').textContent    = (lesson.moduleTitle || '').toUpperCase();
+  document.getElementById('course-text').textContent            = lesson.content || '';
+
+  // Formulas
+  const fEl = document.getElementById('course-formulas');
+  fEl.innerHTML = (lesson.formulas || []).map(f => `
+    <div class="formula-card">
+      <div class="formula-label">${escapeHtml(f.label)}</div>
+      <div class="formula-expr">${escapeHtml(f.latex)}</div>
+      <div class="formula-units">${escapeHtml(f.units || '')}</div>
+    </div>`).join('') ||
+    '<div style="color:rgba(0,120,160,.4);font-size:10px">No formulas for this lesson.</div>';
+
+  // Worked example
+  const ex = lesson.workedExample;
+  if (ex) {
+    document.getElementById('course-example').innerHTML =
+      `<div class="example-problem">Problem: ${escapeHtml(ex.problem)}</div>
+       <div class="example-solution">${escapeHtml(ex.solution)}</div>
+       <div class="example-steps">${(ex.steps || []).map(s =>
+         `<div class="example-step">${escapeHtml(s)}</div>`).join('')}</div>`;
+  } else {
+    document.getElementById('course-example').innerHTML =
+      '<div style="color:rgba(0,120,160,.4);font-size:10px">No worked example.</div>';
+  }
+
+  renderQuiz(lesson);
+  document.getElementById('course-content-scroll').scrollTop = 0;
+}
+window.openLesson = openLesson;
+
+function renderQuiz(lesson) {
+  quizAnswers   = {};
+  quizSubmitted = false;
+  const quiz = lesson.quiz || [];
+  _currentQuizCorrects = quiz.map(q => q.correct);
+
+  if (quiz.length === 0) {
+    document.getElementById('course-quiz').style.display = 'none';
+    return;
+  }
+  document.getElementById('course-quiz').style.display = '';
+  const submitBtn = document.getElementById('quiz-submit');
+  submitBtn.disabled = true;
+  submitBtn.style.display = '';
+  document.getElementById('quiz-next').style.display = 'none';
+  const badge = document.getElementById('quiz-score-badge');
+  badge.textContent = '';
+  badge.className = 'quiz-score-badge';
+
+  if (lesson.quizScore !== null && lesson.quizScore !== undefined && lesson.completed) {
+    badge.textContent = `${lesson.quizScore}/${quiz.length}`;
+    const pass = lesson.quizScore >= Math.ceil(quiz.length * 0.7);
+    badge.className = `quiz-score-badge show ${pass ? 'pass' : 'fail'}`;
+  }
+
+  document.getElementById('quiz-questions').innerHTML = quiz.map((q, qi) => `
+    <div class="quiz-question-block" data-qi="${qi}">
+      <div class="quiz-question">${qi + 1}. ${escapeHtml(q.question)}</div>
+      <div class="quiz-options">
+        ${q.options.map((opt, oi) => `
+          <button class="quiz-option" data-qi="${qi}" data-oi="${oi}"
+            onclick="selectQuizOption(${qi},${oi})">${escapeHtml(opt)}</button>
+        `).join('')}
+      </div>
+      <div class="quiz-explanation" id="quiz-exp-${qi}">${escapeHtml(q.explanation || '')}</div>
+    </div>`).join('');
+}
+
+function selectQuizOption(qi, oi) {
+  if (quizSubmitted) return;
+  quizAnswers[qi] = oi;
+  document.querySelectorAll(`.quiz-option[data-qi="${qi}"]`).forEach(btn => {
+    btn.classList.toggle('selected', parseInt(btn.getAttribute('data-oi')) === oi);
+  });
+  const totalQ = document.querySelectorAll('.quiz-question-block').length;
+  document.getElementById('quiz-submit').disabled = Object.keys(quizAnswers).length < totalQ;
+}
+window.selectQuizOption = selectQuizOption;
+
+async function submitQuiz() {
+  if (quizSubmitted) return;
+  quizSubmitted = true;
+  document.getElementById('quiz-submit').disabled = true;
+
+  const blocks = document.querySelectorAll('.quiz-question-block');
+  let correct = 0;
+  blocks.forEach((block, qi) => {
+    const selected   = quizAnswers[qi];
+    const correctIdx = _currentQuizCorrects[qi];
+    const opts = block.querySelectorAll('.quiz-option');
+    opts.forEach(btn => { btn.disabled = true; });
+    if (typeof correctIdx === 'number') {
+      if (selected === correctIdx) {
+        correct++;
+        if (opts[selected]) opts[selected].classList.add('correct');
+      } else {
+        if (typeof selected === 'number' && opts[selected]) opts[selected].classList.add('wrong');
+        if (opts[correctIdx]) opts[correctIdx].classList.add('correct');
+      }
+    }
+    const expEl = document.getElementById(`quiz-exp-${qi}`);
+    if (expEl) expEl.classList.add('show');
+  });
+
+  const total  = blocks.length;
+  const passed = correct >= Math.ceil(total * 0.7);
+  const badge  = document.getElementById('quiz-score-badge');
+  badge.textContent = `${correct}/${total}`;
+  badge.className = `quiz-score-badge show ${passed ? 'pass' : 'fail'}`;
+  document.getElementById('quiz-next').style.display = '';
+
+  if (currentLesson) {
+    try {
+      await fetch(`${API}/v1/courses/${encodeURIComponent(currentLesson.courseId)}/progress`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ lessonId: currentLesson.lessonId, completed: passed, quizScore: correct }),
+      });
+    } catch {}
+    loadCourse();
+  }
+}
+window.submitQuiz = submitQuiz;
+
+async function goNextLesson() {
+  if (!courseData || !currentLesson) return;
+  const allLessons = courseData.modules.flatMap(m =>
+    m.lessons.map(l => ({ id: l.id, courseId: courseData.id }))
+  );
+  const idx = allLessons.findIndex(l => l.id === currentLesson.lessonId);
+  if (idx >= 0 && idx < allLessons.length - 1) {
+    openLesson(allLessons[idx + 1].courseId, allLessons[idx + 1].id);
+  }
+}
+window.goNextLesson = goNextLesson;
+
+// Keyboard: G=graph, K=skills, N=neural, R=memory, E=course
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key.toLowerCase() === 'g') switchTab('graph');
   if (e.key.toLowerCase() === 'k') switchTab('skills');
   if (e.key.toLowerCase() === 'r') switchTab('memory');
   if (e.key.toLowerCase() === 'n') switchTab('neural');
+  if (e.key.toLowerCase() === 'e') switchTab('course');
 });
 </script>
 </body>
